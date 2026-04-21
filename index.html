@@ -65,7 +65,7 @@
             height: 100vh;
         }
         body.app-active .card-content { justify-content: center; padding: 2rem; }
-        body.app-active .edit-section, body.app-active .divider { display: none; }
+        body.app-active .edit-section, body.app-active #notesDivider { display: none; }
         body.app-active .time-display { font-size: 7rem; }
 
         .header {
@@ -234,6 +234,44 @@
         .routine-chip span:first-child { cursor: pointer; }
         .delete-x { color: #ff3b30; font-weight: bold; font-size: 1.1rem; cursor: pointer; padding-left: 4px; }
 
+        /* Nueva sección de Notas integradas */
+        .notes-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .notes-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-notes-toggle {
+            display: none;
+            background: rgba(0,0,0,0.06);
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-color);
+            cursor: pointer;
+            letter-spacing: 0.05em;
+        }
+
+        /* Mostrar botón de ocultar solo en Focus Mode */
+        body.app-active .btn-notes-toggle {
+            display: block;
+        }
+
+        /* Ocultar caja de texto si el usuario activa el toggle */
+        body.notes-hidden .notes-area {
+            display: none;
+        }
+
         .notes-area {
             width: 100%;
             height: 120px;
@@ -243,9 +281,10 @@
             background: #fbfbfd;
             font-size: 0.95rem;
             resize: none;
+            transition: opacity 0.3s ease;
         }
 
-        h2 { font-size: 1.1rem; margin-bottom: 0.5rem; opacity: 0.9; font-weight: 600;}
+        h2 { font-size: 1.1rem; opacity: 0.9; font-weight: 600;}
     </style>
 </head>
 <body>
@@ -296,13 +335,16 @@
                 <button class="btn-reset" style="background: #34c759; color: white; margin-top: 1rem; width: 100%;" onclick="saveRoutine()">Save this routine</button>
                 <div id="routineList" class="saved-routines"></div>
             </div>
+        </div>
 
-            <div class="divider"></div>
+        <div class="divider" id="notesDivider"></div>
 
-            <div>
+        <div class="notes-wrapper">
+            <div class="notes-header">
                 <h2>Notes</h2>
-                <textarea id="notepad" class="notes-area" placeholder="Jot down your workout details..."></textarea>
+                <button class="btn-notes-toggle" id="notesToggleBtn" onclick="toggleNotesVisibility()">HIDE</button>
             </div>
+            <textarea id="notepad" class="notes-area" placeholder="Jot down your workout details..."></textarea>
         </div>
 
     </div>
@@ -316,6 +358,7 @@
     let currentPhaseIndex = 0;
     let currentState = 'READY'; 
     let soundEnabled = true;
+    let isNotesHidden = false; // Estado del botón de notas
     let phases = [{ name: "Phase 1", time: 1 }, { name: "Phase 2", time: 2 }];
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -327,6 +370,19 @@
 
     if(localStorage.getItem('notes')) notepad.value = localStorage.getItem('notes');
     notepad.addEventListener('input', () => localStorage.setItem('notes', notepad.value));
+
+    // Función para mostrar/ocultar notas en Focus Mode
+    function toggleNotesVisibility() {
+        isNotesHidden = !isNotesHidden;
+        const btn = document.getElementById('notesToggleBtn');
+        if (isNotesHidden) {
+            document.body.classList.add('notes-hidden');
+            btn.innerText = 'SHOW';
+        } else {
+            document.body.classList.remove('notes-hidden');
+            btn.innerText = 'HIDE';
+        }
+    }
 
     function renderPhaseInputs() {
         const container = document.getElementById('phasesContainer');
@@ -401,7 +457,6 @@
     }
 
     function applyRoutine(r) {
-        // Compatibilidad: lee 'time', o convierte 'min' a 'time' si era rutina vieja
         phases = r.phasesData.map(p => ({
             name: p.name,
             time: p.time !== undefined ? p.time : (p.min || 0)
@@ -548,6 +603,10 @@
         currentState = 'READY';
         
         document.body.classList.remove('app-active');
+        // Opcional: Mostrar notas al reiniciar si el usuario las había ocultado
+        // isNotesHidden = false;
+        // document.body.classList.remove('notes-hidden');
+        // document.getElementById('notesToggleBtn').innerText = 'HIDE';
         
         renderTime(); 
         updateUI();
