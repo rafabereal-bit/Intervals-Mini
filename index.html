@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Intervals Pro</title>
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+
     <style>
         :root {
             --bg-color: #f5f5f7;
@@ -544,7 +548,7 @@
         if (isRunning) {
             clearInterval(timerInterval);
             startBtn.innerText = 'Resume'; 
-            startBtn.style.backgroundColor = '#34c759'; // Cambiado a verde al pausar
+            startBtn.style.backgroundColor = '#34c759'; 
             isRunning = false;
         } else {
             if (currentState === 'READY') {
@@ -569,7 +573,7 @@
                 renderTime();
             }, 1000);
             startBtn.innerText = 'Pause'; 
-            startBtn.style.backgroundColor = '#ff3b30'; // Se mantiene rojo al correr
+            startBtn.style.backgroundColor = '#ff3b30'; 
             isRunning = true;
         }
     }
