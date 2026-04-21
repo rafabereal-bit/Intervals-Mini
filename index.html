@@ -3,427 +3,394 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Temporizador de Intervalos</title>
+    <title>Temporizador Pro</title>
     <style>
-        /* Estilo Minimalista tipo Apple */
         :root {
             --bg-color: #f5f5f7;
             --text-color: #1d1d1f;
             --accent-color: #0071e3;
-            --work-color: #e3f2fd; /* Azul suave para correr */
-            --rest-color: #e8f5e9; /* Verde suave para caminar */
             --card-bg: #ffffff;
+            --work-bg: #e3f2fd;
+            --rest-bg: #e8f5e9;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             -webkit-font-smoothing: antialiased;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 0.5s ease;
+            transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            padding: 2rem 1rem;
+            padding: env(safe-area-inset-top) 1rem 2rem;
         }
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 440px;
             display: flex;
             flex-direction: column;
-            gap: 2rem;
+            gap: 1.5rem;
         }
 
-        /* Cabecera y Controles de Audio */
+        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-        }
-
-        h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
+            padding: 1rem 0.5rem;
         }
 
         .sound-toggle {
-            background: none;
+            background: rgba(0,0,0,0.05);
             border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: var(--text-color);
-            opacity: 0.7;
-            transition: opacity 0.2s;
-        }
-
-        .sound-toggle:hover { opacity: 1; }
-
-        /* Pantalla del Temporizador */
-        .timer-display {
-            text-align: center;
-            background-color: var(--card-bg);
-            padding: 3rem 1rem;
-            border-radius: 24px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-        }
-
-        .time {
-            font-size: 5rem;
-            font-weight: 700;
-            line-height: 1;
-            letter-spacing: -0.05em;
-            margin-bottom: 0.5rem;
-            font-variant-numeric: tabular-nums;
-        }
-
-        .status {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
             font-size: 1.2rem;
-            font-weight: 500;
+            cursor: pointer;
+        }
+
+        /* Timer - El Centro de Atención */
+        .timer-hero {
+            text-align: center;
+            padding: 4rem 1rem;
+            background: var(--card-bg);
+            border-radius: 32px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            min-height: 350px;
+        }
+
+        .time-display {
+            font-size: 8rem; /* Tamaño masivo */
+            font-weight: 700;
+            letter-spacing: -0.05em;
+            line-height: 1;
+            font-variant-numeric: tabular-nums;
+            margin: 1rem 0;
+        }
+
+        .phase-label {
+            font-size: 1.5rem;
+            font-weight: 600;
             color: var(--accent-color);
             text-transform: uppercase;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.05em;
         }
 
-        .sets-display {
-            font-size: 1rem;
+        .set-counter {
+            font-size: 1.1rem;
             color: #86868b;
-            margin-top: 0.5rem;
+            font-weight: 500;
         }
 
-        /* Controles Principales */
-        .main-controls {
-            display: flex;
-            justify-content: center;
+        /* Botones Principales */
+        .controls-main {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
             gap: 1rem;
         }
 
         button {
             border: none;
-            border-radius: 98px;
-            padding: 1rem 2rem;
-            font-size: 1rem;
+            border-radius: 16px;
+            padding: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
+            transition: all 0.2s ease;
         }
 
-        button:active { transform: scale(0.96); }
+        button:active { transform: scale(0.97); }
 
-        .btn-primary {
-            background-color: var(--accent-color);
-            color: white;
-            flex-grow: 1;
-        }
+        .btn-start { background: var(--accent-color); color: white; }
+        .btn-reset { background: #e5e5ea; color: var(--text-color); }
 
-        .btn-secondary {
-            background-color: #e5e5ea;
-            color: var(--text-color);
-        }
-
-        /* Ajustes de Intervalos */
-        .settings {
-            background-color: var(--card-bg);
+        /* Configuración y Rutinas */
+        .section-card {
+            background: var(--card-bg);
             padding: 1.5rem;
-            border-radius: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            border-radius: 24px;
             display: flex;
             flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 80px;
+            align-items: center;
             gap: 1rem;
         }
 
-        .input-group {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .input-group label {
-            font-weight: 500;
-            font-size: 0.95rem;
-        }
-
-        input[type="number"] {
-            width: 70px;
-            padding: 0.5rem;
+        .input-row input {
+            padding: 0.8rem;
             border: 1px solid #d2d2d7;
-            border-radius: 8px;
-            text-align: center;
+            border-radius: 12px;
             font-size: 1rem;
-            font-family: inherit;
+            text-align: center;
         }
 
-        /* Bloc de Notas */
-        .notes-section {
+        .input-row input[type="text"] { text-align: left; width: 100%; }
+
+        /* Rutinas Guardadas */
+        .saved-routines {
             display: flex;
-            flex-direction: column;
+            flex-wrap: wrap;
             gap: 0.5rem;
         }
 
-        .notes-section label {
-            font-weight: 600;
-            font-size: 1rem;
-            padding-left: 0.5rem;
-        }
-
-        textarea {
-            width: 100%;
-            height: 120px;
-            padding: 1rem;
+        .routine-chip {
+            background: #f5f5f7;
+            padding: 0.6rem 1rem;
+            border-radius: 12px;
+            font-size: 0.9rem;
             border: 1px solid #d2d2d7;
-            border-radius: 16px;
-            resize: none;
-            font-family: inherit;
-            font-size: 0.95rem;
-            background-color: var(--card-bg);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            cursor: pointer;
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
+        /* Notas */
+        .notes-area {
+            width: 100%;
+            height: 150px;
+            padding: 1.2rem;
+            border-radius: 24px;
+            border: none;
+            background: var(--card-bg);
+            font-size: 1rem;
+            resize: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
+
+        h2 { font-size: 1.2rem; margin-bottom: 0.5rem; padding-left: 0.5rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Mi Temporizador</h1>
+        <h1 style="font-weight: 700; font-size: 1.2rem;">TEMPO</h1>
         <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">🔊</button>
     </div>
 
-    <div class="timer-display" id="displayCard">
-        <div class="time" id="timeDisplay">01:00</div>
-        <div class="status" id="statusDisplay">Preparado</div>
-        <div class="sets-display">Ronda <span id="currentSet">1</span> de <span id="totalSetsDisplay">8</span></div>
+    <div class="timer-hero" id="heroCard">
+        <div class="set-counter">Ronda <span id="currentSet">1</span> / <span id="totalSetsDisp">8</span></div>
+        <div class="time-display" id="timeDisplay">01:00</div>
+        <div class="phase-label" id="phaseDisplay">PREPARADO</div>
     </div>
 
-    <div class="main-controls">
-        <button class="btn-secondary" onclick="resetTimer()">Reiniciar</button>
-        <button class="btn-primary" id="startBtn" onclick="toggleTimer()">Iniciar</button>
+    <div class="controls-main">
+        <button class="btn-reset" onclick="resetTimer()">Reiniciar</button>
+        <button class="btn-start" id="startBtn" onclick="toggleTimer()">Iniciar</button>
     </div>
 
-    <div class="settings">
-        <div class="input-group">
-            <label for="workTime">Correr (minutos)</label>
-            <input type="number" id="workTime" value="1" min="1" onchange="updateSettings()">
+    <div class="section-card">
+        <h2>Personalizar Intervalos</h2>
+        <div class="input-row">
+            <input type="text" id="label1" placeholder="Nombre fase 1" value="Fase 1">
+            <input type="number" id="time1" value="1" min="1">
         </div>
-        <div class="input-group">
-            <label for="restTime">Caminar (minutos)</label>
-            <input type="number" id="restTime" value="2" min="1" onchange="updateSettings()">
+        <div class="input-row">
+            <input type="text" id="label2" placeholder="Nombre fase 2" value="Fase 2">
+            <input type="number" id="time2" value="2" min="1">
         </div>
-        <div class="input-group">
-            <label for="sets">Repeticiones</label>
-            <input type="number" id="sets" value="8" min="1" onchange="updateSettings()">
+        <div class="input-row">
+            <span>Repeticiones</span>
+            <input type="number" id="sets" value="8" min="1">
         </div>
+        <button class="btn-reset" style="background: #34c759; color: white;" onclick="saveRoutine()">Guardar esta rutina</button>
+        
+        <div id="routineList" class="saved-routines">
+            </div>
     </div>
 
-    <div class="notes-section">
-        <label for="notepad">Mi Rutina / Notas</label>
-        <textarea id="notepad" placeholder="Escribe aquí tu rutina, pesos, o cómo te sentiste hoy..."></textarea>
+    <div>
+        <h2>Notes</h2>
+        <textarea id="notepad" class="notes-area" placeholder="Anota aquí tus detalles..."></textarea>
     </div>
 </div>
 
 <script>
-    // Variables de estado
     let isRunning = false;
-    let isWorkPhase = true; // true = Correr, false = Caminar
+    let isPhase1 = true;
     let timerInterval;
     let timeLeft;
-    let currentSetCount = 1;
+    let currentSet = 1;
     let soundEnabled = true;
-
-    // Contexto de Audio para el Beep (sin necesidad de archivos externos)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // Elementos del DOM
     const timeDisplay = document.getElementById('timeDisplay');
-    const statusDisplay = document.getElementById('statusDisplay');
-    const currentSetElement = document.getElementById('currentSet');
-    const totalSetsDisplay = document.getElementById('totalSetsDisplay');
+    const phaseDisplay = document.getElementById('phaseDisplay');
     const startBtn = document.getElementById('startBtn');
-    const soundBtn = document.getElementById('soundBtn');
+    const heroCard = document.getElementById('heroCard');
     const notepad = document.getElementById('notepad');
 
-    // Cargar notas guardadas al abrir la app
-    if(localStorage.getItem('rutinaNotas')) {
-        notepad.value = localStorage.getItem('rutinaNotas');
+    // Inicialización y Notas
+    if(localStorage.getItem('notes')) notepad.value = localStorage.getItem('notes');
+    notepad.addEventListener('input', () => localStorage.setItem('notes', notepad.value));
+    
+    function loadSavedRoutines() {
+        const routines = JSON.parse(localStorage.getItem('myRoutines') || '[]');
+        const container = document.getElementById('routineList');
+        container.innerHTML = '';
+        routines.forEach((r, index) => {
+            const btn = document.createElement('div');
+            btn.className = 'routine-chip';
+            btn.innerText = r.name;
+            btn.onclick = () => applyRoutine(r);
+            container.appendChild(btn);
+        });
     }
 
-    // Guardar notas automáticamente mientras se escribe
-    notepad.addEventListener('input', () => {
-        localStorage.setItem('rutinaNotas', notepad.value);
-    });
-
-    function getSettings() {
-        return {
-            workSeconds: parseInt(document.getElementById('workTime').value) * 60,
-            restSeconds: parseInt(document.getElementById('restTime').value) * 60,
-            totalSets: parseInt(document.getElementById('sets').value)
+    function saveRoutine() {
+        const name = prompt("Nombre para esta rutina:");
+        if (!name) return;
+        const r = {
+            name: name,
+            l1: document.getElementById('label1').value,
+            t1: document.getElementById('time1').value,
+            l2: document.getElementById('label2').value,
+            t2: document.getElementById('time2').value,
+            s: document.getElementById('sets').value
         };
+        const routines = JSON.parse(localStorage.getItem('myRoutines') || '[]');
+        routines.push(r);
+        localStorage.setItem('myRoutines', JSON.stringify(routines));
+        loadSavedRoutines();
     }
 
-    function updateSettings() {
-        if (!isRunning) {
-            resetTimer();
-        }
-        document.getElementById('totalSetsDisplay').innerText = document.getElementById('sets').value;
-    }
-
-    function formatTime(seconds) {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-    }
-
-    function playBeep() {
-        if (!soundEnabled) return;
-        
-        // Reanudar el contexto de audio por si el navegador lo suspendió
-        if (audioCtx.state === 'suspended') {
-            audioCtx.resume();
-        }
-
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Frecuencia del tono
-        
-        gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5); // Efecto de desvanecimiento
-        
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.5);
+    function applyRoutine(r) {
+        document.getElementById('label1').value = r.l1;
+        document.getElementById('time1').value = r.t1;
+        document.getElementById('label2').value = r.l2;
+        document.getElementById('time2').value = r.t2;
+        document.getElementById('sets').value = r.s;
+        resetTimer();
     }
 
     function toggleSound() {
         soundEnabled = !soundEnabled;
-        soundBtn.innerText = soundEnabled ? '🔊' : '🔇';
-        soundBtn.style.opacity = soundEnabled ? '1' : '0.4';
+        document.getElementById('soundBtn').innerText = soundEnabled ? '🔊' : '🔇';
+    }
+
+    function playBeep() {
+        if (!soundEnabled) return;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.value = 880;
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
     }
 
     function toggleTimer() {
         if (isRunning) {
             clearInterval(timerInterval);
             startBtn.innerText = 'Reanudar';
-            startBtn.style.backgroundColor = '#34c759'; // Verde estilo Apple para reanudar
+            startBtn.style.backgroundColor = '#34c759';
             isRunning = false;
         } else {
-            // Inicializar el tiempo si es la primera vez
             if (timeLeft === undefined) {
-                timeLeft = getSettings().workSeconds;
-                isWorkPhase = true;
-                updatePhaseUI();
+                timeLeft = parseInt(document.getElementById('time1').value) * 60;
+                isPhase1 = true;
+                updateUI();
             }
-            
-            // Requerido por iOS: inicializar el audio en una interacción del usuario
-            if (audioCtx.state === 'suspended') {
-                audioCtx.resume();
-            }
-
-            timerInterval = setInterval(tick, 1000);
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft < 0) {
+                    playBeep();
+                    switchPhase();
+                }
+                renderTime();
+            }, 1000);
             startBtn.innerText = 'Pausar';
-            startBtn.style.backgroundColor = '#ff3b30'; // Rojo estilo Apple para pausar
+            startBtn.style.backgroundColor = '#ff3b30';
             isRunning = true;
         }
     }
 
-    function tick() {
-        timeLeft--;
-        
-        if (timeLeft < 0) {
-            playBeep();
-            switchPhase();
-        } else {
-            timeDisplay.innerText = formatTime(timeLeft);
-        }
-    }
-
     function switchPhase() {
-        const settings = getSettings();
-        
-        if (isWorkPhase) {
-            // Cambiar a descanso
-            isWorkPhase = false;
-            timeLeft = settings.restSeconds;
+        const t1 = parseInt(document.getElementById('time1').value) * 60;
+        const t2 = parseInt(document.getElementById('time2').value) * 60;
+        const totalSets = parseInt(document.getElementById('sets').value);
+
+        if (isPhase1) {
+            isPhase1 = false;
+            timeLeft = t2;
         } else {
-            // Termina el descanso, verificar repeticiones
-            if (currentSetCount >= settings.totalSets) {
-                finishRoutine();
+            if (currentSet >= totalSets) {
+                finish();
                 return;
             }
-            // Cambiar a trabajo de nuevo
-            isWorkPhase = true;
-            currentSetCount++;
-            timeLeft = settings.workSeconds;
+            isPhase1 = true;
+            currentSet++;
+            timeLeft = t1;
         }
-        
-        updatePhaseUI();
-        timeDisplay.innerText = formatTime(timeLeft);
+        updateUI();
     }
 
-    function updatePhaseUI() {
-        currentSetElement.innerText = currentSetCount;
+    function updateUI() {
+        const l1 = document.getElementById('label1').value || "Fase 1";
+        const l2 = document.getElementById('label2').value || "Fase 2";
+        const totalSets = document.getElementById('sets').value;
+
+        document.getElementById('currentSet').innerText = currentSet;
+        document.getElementById('totalSetsDisp').innerText = totalSets;
         
-        if (isWorkPhase) {
-            statusDisplay.innerText = "¡A Correr!";
-            statusDisplay.style.color = "#0071e3";
-            document.body.style.backgroundColor = "var(--work-color)";
+        if (isPhase1) {
+            phaseDisplay.innerText = l1;
+            document.body.style.backgroundColor = "var(--work-bg)";
         } else {
-            statusDisplay.innerText = "Caminar / Descanso";
-            statusDisplay.style.color = "#34c759";
-            document.body.style.backgroundColor = "var(--rest-color)";
+            phaseDisplay.innerText = l2;
+            document.body.style.backgroundColor = "var(--rest-bg)";
         }
     }
 
-    function finishRoutine() {
-        clearInterval(timerInterval);
-        isRunning = false;
-        playBeep();
-        setTimeout(playBeep, 400); // Doble beep al terminar
-        
-        statusDisplay.innerText = "¡Rutina Completada!";
-        statusDisplay.style.color = "#1d1d1f";
-        document.body.style.backgroundColor = "var(--bg-color)";
-        timeDisplay.innerText = "00:00";
-        startBtn.innerText = 'Iniciar';
-        startBtn.style.backgroundColor = 'var(--accent-color)';
+    function renderTime() {
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        timeDisplay.innerText = `${m}:${s}`;
     }
 
     function resetTimer() {
         clearInterval(timerInterval);
         isRunning = false;
         timeLeft = undefined;
-        currentSetCount = 1;
-        isWorkPhase = true;
-        
-        const settings = getSettings();
-        timeDisplay.innerText = formatTime(settings.workSeconds);
-        statusDisplay.innerText = "Preparado";
-        statusDisplay.style.color = "var(--accent-color)";
+        currentSet = 1;
+        isPhase1 = true;
+        renderTime();
+        phaseDisplay.innerText = "PREPARADO";
         document.body.style.backgroundColor = "var(--bg-color)";
-        currentSetElement.innerText = currentSetCount;
-        
         startBtn.innerText = 'Iniciar';
         startBtn.style.backgroundColor = 'var(--accent-color)';
+        updateUI();
     }
 
-    // Inicializar la pantalla
-    updateSettings();
-</script>
+    function finish() {
+        clearInterval(timerInterval);
+        playBeep();
+        setTimeout(playBeep, 400);
+        phaseDisplay.innerText = "¡HECHO!";
+        document.body.style.backgroundColor = "var(--bg-color)";
+        isRunning = false;
+        startBtn.innerText = 'Iniciar';
+    }
 
+    loadSavedRoutines();
+    resetTimer();
+</script>
 </body>
 </html>
