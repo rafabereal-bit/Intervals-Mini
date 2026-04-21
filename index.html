@@ -44,7 +44,7 @@
             height: 100%;
             background-color: var(--bg-color);
             display: flex;
-            flex-direction: column; /* Stack vertically */
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
@@ -52,17 +52,16 @@
         }
 
         .splash-screen h1 {
-            color: #ff3b30; /* Rojo vibrante estilo Apple */
+            color: #ff3b30;
             font-style: italic;
             font-size: 3.5rem;
             font-weight: 800;
             letter-spacing: 0.05em;
-            margin-bottom: 0.2rem; /* Spacing for slogan */
+            margin-bottom: 0.2rem;
         }
 
-        /* Styling for the new slogan */
         .splash-screen p {
-            color: var(--text-color); /* Negro/Gris oscuro */
+            color: var(--text-color);
             font-size: 1rem;
             font-weight: 400;
             letter-spacing: -0.01em;
@@ -72,7 +71,6 @@
             opacity: 0;
             visibility: hidden;
         }
-        /* --------------------- */
 
         .main-card {
             background: var(--card-bg);
@@ -392,11 +390,10 @@
 </div>
 
 <script>
-    // --- Lógica del Splash Screen ---
     window.addEventListener('load', () => {
         setTimeout(() => {
             document.getElementById('splashScreen').classList.add('splash-hidden');
-        }, 1200); // 1.2 segundos de pantalla de carga
+        }, 1200); 
     });
 
     let isRunning = false;
@@ -535,7 +532,8 @@
     function toggleTimer() {
         if (isRunning) {
             clearInterval(timerInterval);
-            startBtn.innerText = 'Resume'; startBtn.style.backgroundColor = '#34c759';
+            startBtn.innerText = 'Resume'; 
+            startBtn.style.backgroundColor = '#ff3b30'; // Mantiene el rojo al pausar
             isRunning = false;
         } else {
             if (currentState === 'READY') {
@@ -559,7 +557,8 @@
                 if (timeLeft < 0) { playBeep(); switchPhase(); }
                 renderTime();
             }, 1000);
-            startBtn.innerText = 'Pause'; startBtn.style.backgroundColor = '#ff3b red';
+            startBtn.innerText = 'Pause'; 
+            startBtn.style.backgroundColor = '#ff3b30'; // Es rojo al correr
             isRunning = true;
         }
     }
@@ -655,7 +654,7 @@
         updateUI();
         
         startBtn.innerText = 'Start'; 
-        startBtn.style.backgroundColor = 'var(--accent-color)';
+        startBtn.style.backgroundColor = 'var(--accent-color)'; // Vuelve a azul cuando está listo
     }
 
     function finish() {
@@ -672,6 +671,7 @@
         
         isRunning = false; 
         startBtn.innerText = 'Start'; 
+        startBtn.style.backgroundColor = 'var(--accent-color)'; // Vuelve a azul al terminar
         timeLeft = undefined;
     }
 
