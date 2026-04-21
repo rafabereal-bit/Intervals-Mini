@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Temporizador Pro</title>
+    <title>Timer Pro</title>
     <style>
         :root {
             --bg-color: #f5f5f7;
@@ -57,9 +57,14 @@
             border-radius: 50%;
             font-size: 1.2rem;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: opacity 0.2s;
         }
 
-        /* Timer - El Centro de Atención */
+        /* Timer Hero */
         .timer-hero {
             text-align: center;
             padding: 4rem 1rem;
@@ -73,7 +78,7 @@
         }
 
         .time-display {
-            font-size: 8rem; /* Tamaño masivo */
+            font-size: 8rem;
             font-weight: 700;
             letter-spacing: -0.05em;
             line-height: 1;
@@ -95,7 +100,7 @@
             font-weight: 500;
         }
 
-        /* Botones Principales */
+        /* Main Controls */
         .controls-main {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -117,7 +122,7 @@
         .btn-start { background: var(--accent-color); color: white; }
         .btn-reset { background: #e5e5ea; color: var(--text-color); }
 
-        /* Configuración y Rutinas */
+        /* Settings Card */
         .section-card {
             background: var(--card-bg);
             padding: 1.5rem;
@@ -144,7 +149,7 @@
 
         .input-row input[type="text"] { text-align: left; width: 100%; }
 
-        /* Rutinas Guardadas */
+        /* Saved Routines */
         .saved-routines {
             display: flex;
             flex-wrap: wrap;
@@ -160,7 +165,7 @@
             cursor: pointer;
         }
 
-        /* Notas */
+        /* Notes Area */
         .notes-area {
             width: 100%;
             height: 150px;
@@ -185,31 +190,31 @@
     </div>
 
     <div class="timer-hero" id="heroCard">
-        <div class="set-counter">Ronda <span id="currentSet">1</span> / <span id="totalSetsDisp">8</span></div>
+        <div class="set-counter">Round <span id="currentSet">1</span> / <span id="totalSetsDisp">8</span></div>
         <div class="time-display" id="timeDisplay">01:00</div>
-        <div class="phase-label" id="phaseDisplay">PREPARADO</div>
+        <div class="phase-label" id="phaseDisplay">READY</div>
     </div>
 
     <div class="controls-main">
-        <button class="btn-reset" onclick="resetTimer()">Reiniciar</button>
-        <button class="btn-start" id="startBtn" onclick="toggleTimer()">Iniciar</button>
+        <button class="btn-reset" onclick="resetTimer()">Reset</button>
+        <button class="btn-start" id="startBtn" onclick="toggleTimer()">Start</button>
     </div>
 
     <div class="section-card">
-        <h2>Personalizar Intervalos</h2>
+        <h2>Customize Intervals</h2>
         <div class="input-row">
-            <input type="text" id="label1" placeholder="Nombre fase 1" value="Fase 1">
+            <input type="text" id="label1" placeholder="Phase 1 name" value="Phase 1">
             <input type="number" id="time1" value="1" min="1">
         </div>
         <div class="input-row">
-            <input type="text" id="label2" placeholder="Nombre fase 2" value="Fase 2">
+            <input type="text" id="label2" placeholder="Phase 2 name" value="Phase 2">
             <input type="number" id="time2" value="2" min="1">
         </div>
         <div class="input-row">
-            <span>Repeticiones</span>
+            <span>Rounds</span>
             <input type="number" id="sets" value="8" min="1">
         </div>
-        <button class="btn-reset" style="background: #34c759; color: white;" onclick="saveRoutine()">Guardar esta rutina</button>
+        <button class="btn-reset" style="background: #34c759; color: white;" onclick="saveRoutine()">Save this routine</button>
         
         <div id="routineList" class="saved-routines">
             </div>
@@ -217,7 +222,7 @@
 
     <div>
         <h2>Notes</h2>
-        <textarea id="notepad" class="notes-area" placeholder="Anota aquí tus detalles..."></textarea>
+        <textarea id="notepad" class="notes-area" placeholder="Jot down your workout details..."></textarea>
     </div>
 </div>
 
@@ -233,10 +238,17 @@
     const timeDisplay = document.getElementById('timeDisplay');
     const phaseDisplay = document.getElementById('phaseDisplay');
     const startBtn = document.getElementById('startBtn');
-    const heroCard = document.getElementById('heroCard');
     const notepad = document.getElementById('notepad');
+    const time1Input = document.getElementById('time1');
 
-    // Inicialización y Notas
+    // Update display instantly when user types a new time for Phase 1
+    time1Input.addEventListener('input', () => {
+        if (!isRunning && isPhase1) {
+            renderTime();
+        }
+    });
+
+    // Notes Initialization
     if(localStorage.getItem('notes')) notepad.value = localStorage.getItem('notes');
     notepad.addEventListener('input', () => localStorage.setItem('notes', notepad.value));
     
@@ -244,7 +256,7 @@
         const routines = JSON.parse(localStorage.getItem('myRoutines') || '[]');
         const container = document.getElementById('routineList');
         container.innerHTML = '';
-        routines.forEach((r, index) => {
+        routines.forEach((r) => {
             const btn = document.createElement('div');
             btn.className = 'routine-chip';
             btn.innerText = r.name;
@@ -254,7 +266,7 @@
     }
 
     function saveRoutine() {
-        const name = prompt("Nombre para esta rutina:");
+        const name = prompt("Name for this routine:");
         if (!name) return;
         const r = {
             name: name,
@@ -286,6 +298,7 @@
 
     function playBeep() {
         if (!soundEnabled) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
@@ -298,7 +311,7 @@
     function toggleTimer() {
         if (isRunning) {
             clearInterval(timerInterval);
-            startBtn.innerText = 'Reanudar';
+            startBtn.innerText = 'Resume';
             startBtn.style.backgroundColor = '#34c759';
             isRunning = false;
         } else {
@@ -316,7 +329,7 @@
                 }
                 renderTime();
             }, 1000);
-            startBtn.innerText = 'Pausar';
+            startBtn.innerText = 'Pause';
             startBtn.style.backgroundColor = '#ff3b30';
             isRunning = true;
         }
@@ -343,8 +356,8 @@
     }
 
     function updateUI() {
-        const l1 = document.getElementById('label1').value || "Fase 1";
-        const l2 = document.getElementById('label2').value || "Fase 2";
+        const l1 = document.getElementById('label1').value || "Phase 1";
+        const l2 = document.getElementById('label2').value || "Phase 2";
         const totalSets = document.getElementById('sets').value;
 
         document.getElementById('currentSet').innerText = currentSet;
@@ -360,8 +373,15 @@
     }
 
     function renderTime() {
-        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-        const s = (timeLeft % 60).toString().padStart(2, '0');
+        // Fix for NaN: fallback to input value if timeLeft is undefined
+        let timeInSeconds = timeLeft;
+        if (timeInSeconds === undefined) {
+            const inputVal = parseInt(document.getElementById('time1').value);
+            timeInSeconds = isNaN(inputVal) ? 0 : inputVal * 60;
+        }
+        
+        const m = Math.floor(timeInSeconds / 60).toString().padStart(2, '0');
+        const s = (timeInSeconds % 60).toString().padStart(2, '0');
         timeDisplay.innerText = `${m}:${s}`;
     }
 
@@ -372,9 +392,9 @@
         currentSet = 1;
         isPhase1 = true;
         renderTime();
-        phaseDisplay.innerText = "PREPARADO";
+        phaseDisplay.innerText = "READY";
         document.body.style.backgroundColor = "var(--bg-color)";
-        startBtn.innerText = 'Iniciar';
+        startBtn.innerText = 'Start';
         startBtn.style.backgroundColor = 'var(--accent-color)';
         updateUI();
     }
@@ -383,10 +403,11 @@
         clearInterval(timerInterval);
         playBeep();
         setTimeout(playBeep, 400);
-        phaseDisplay.innerText = "¡HECHO!";
+        phaseDisplay.innerText = "DONE!";
         document.body.style.backgroundColor = "var(--bg-color)";
         isRunning = false;
-        startBtn.innerText = 'Iniciar';
+        startBtn.innerText = 'Start';
+        timeLeft = undefined;
     }
 
     loadSavedRoutines();
