@@ -44,7 +44,6 @@
             transition: all 0.4s ease;
         }
 
-        /* Modo Concentración (Focus Mode) */
         body.app-active .container {
             flex: 1;
             justify-content: center;
@@ -87,7 +86,7 @@
         }
 
         body.app-active .timer-hero {
-            min-height: 40vh; /* Se hace más grande al entrenar */
+            min-height: 40vh; 
             box-shadow: 0 20px 40px rgba(0,0,0,0.06);
         }
 
@@ -137,7 +136,6 @@
         .btn-start { background: var(--accent-color); color: white; }
         .btn-reset { background: #e5e5ea; color: var(--text-color); }
 
-        /* Contenedor de la sección editable */
         .edit-section {
             display: flex;
             flex-direction: column;
@@ -157,7 +155,7 @@
         .phase-row {
             display: flex;
             align-items: center;
-            gap: 0.8rem;
+            gap: 0.5rem;
             margin-bottom: 0.5rem;
             width: 100%;
         }
@@ -167,14 +165,27 @@
             min-width: 0;
         }
 
-        .phase-row input[type="number"], .special-row input[type="number"] {
-            width: 70px;
+        /* Estilos para los inputs de tiempo dobles (min:sec) */
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 4px;
             flex-shrink: 0;
+        }
+
+        .time-inputs input[type="number"] {
+            width: 48px;
             text-align: center;
+            padding: 0.8rem 0.2rem;
+        }
+
+        .time-inputs span {
+            font-weight: 600;
+            color: #86868b;
         }
 
         .btn-icon-del {
-            width: 30px;
+            width: 24px;
             flex-shrink: 0;
             background: none;
             border: none;
@@ -187,10 +198,13 @@
         }
 
         .phase-row input, .special-row input {
-            padding: 0.8rem;
             border: 1px solid #d2d2d7;
-            border-radius: 12px;
-            font-size: 1rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .phase-row input[type="text"] {
+             padding: 0.8rem;
         }
 
         .special-row {
@@ -201,6 +215,7 @@
             padding: 0.8rem 1rem;
             border-radius: 12px;
             font-weight: 500;
+            font-size: 0.95rem;
         }
 
         .btn-add {
@@ -280,8 +295,12 @@
             <h2>Customize Intervals</h2>
             
             <div class="special-row">
-                <span>Warm Up (min)</span>
-                <input type="number" id="warmUpTime" value="5" min="0" onchange="updateUI()">
+                <span>Warm Up</span>
+                <div class="time-inputs">
+                    <input type="number" id="wuMin" value="5" min="0" placeholder="m" onchange="updateUI()">
+                    <span>:</span>
+                    <input type="number" id="wuSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
+                </div>
             </div>
 
             <div class="divider"></div>
@@ -291,14 +310,18 @@
 
             <div class="special-row" style="background: transparent; padding: 0;">
                 <span>Total Rounds</span>
-                <input type="number" id="sets" value="8" min="1" onchange="updateUI()">
+                <input type="number" id="sets" value="8" min="1" style="width: 60px; text-align: center; padding: 0.8rem; border: 1px solid #d2d2d7; border-radius: 10px;" onchange="updateUI()">
             </div>
 
             <div class="divider"></div>
 
             <div class="special-row">
-                <span>Cool Down (min)</span>
-                <input type="number" id="coolDownTime" value="0" min="0" onchange="updateUI()">
+                <span>Cool Down</span>
+                <div class="time-inputs">
+                    <input type="number" id="cdMin" value="0" min="0" placeholder="m" onchange="updateUI()">
+                    <span>:</span>
+                    <input type="number" id="cdSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
+                </div>
             </div>
 
             <button class="btn-reset" style="background: #34c759; color: white; margin-top: 0.5rem;" onclick="saveRoutine()">Save routine</button>
@@ -318,9 +341,9 @@
     let timeLeft;
     let currentSet = 1;
     let currentPhaseIndex = 0;
-    let currentState = 'READY'; // READY, WARMUP, CIRCUIT, COOLDOWN, DONE
+    let currentState = 'READY'; 
     let soundEnabled = true;
-    let phases = [{ name: "Phase 1", time: 1 }, { name: "Phase 2", time: 2 }];
+    let phases = [{ name: "Phase 1", min: 1, sec: 0 }, { name: "Phase 2", min: 2, sec: 0 }];
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const timeDisplay = document.getElementById('timeDisplay');
@@ -340,15 +363,19 @@
             row.className = 'phase-row';
             row.innerHTML = `
                 <input type="text" value="${p.name}" placeholder="Phase ${index+1}" oninput="phases[${index}].name = this.value; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) updateUI();">
-                <input type="number" value="${p.time}" min="1" oninput="phases[${index}].time = parseInt(this.value) || 0; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) renderTime();">
-                ${phases.length > 1 ? `<button class="btn-icon-del" onclick="removePhase(${index})">&times;</button>` : '<div style="width: 30px;"></div>'}
+                <div class="time-inputs">
+                    <input type="number" value="${p.min}" min="0" placeholder="m" oninput="phases[${index}].min = parseInt(this.value) || 0; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) renderTime();">
+                    <span>:</span>
+                    <input type="number" value="${p.sec}" min="0" max="59" placeholder="s" oninput="phases[${index}].sec = parseInt(this.value) || 0; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) renderTime();">
+                </div>
+                ${phases.length > 1 ? `<button class="btn-icon-del" onclick="removePhase(${index})">&times;</button>` : '<div style="width: 24px;"></div>'}
             `;
             container.appendChild(row);
         });
     }
 
     function addPhase() {
-        phases.push({ name: `Phase ${phases.length + 1}`, time: 1 });
+        phases.push({ name: `Phase ${phases.length + 1}`, min: 1, sec: 0 });
         renderPhaseInputs();
         resetTimer();
     }
@@ -397,18 +424,29 @@
             name, 
             phasesData: JSON.parse(JSON.stringify(phases)), 
             sets: document.getElementById('sets').value,
-            warmUp: document.getElementById('warmUpTime').value,
-            coolDown: document.getElementById('coolDownTime').value
+            wuMin: document.getElementById('wuMin').value,
+            wuSec: document.getElementById('wuSec').value,
+            cdMin: document.getElementById('cdMin').value,
+            cdSec: document.getElementById('cdSec').value
         });
         localStorage.setItem('myDynamicRoutines', JSON.stringify(routines));
         loadSavedRoutines();
     }
 
     function applyRoutine(r) {
-        phases = JSON.parse(JSON.stringify(r.phasesData));
-        document.getElementById('sets').value = r.sets;
-        document.getElementById('warmUpTime').value = r.warmUp || 0;
-        document.getElementById('coolDownTime').value = r.coolDown || 0;
+        // Compatibilidad con rutinas viejas que solo tenían minutos
+        phases = r.phasesData.map(p => ({
+            name: p.name,
+            min: p.min !== undefined ? p.min : (p.time || 0),
+            sec: p.sec || 0
+        }));
+        
+        document.getElementById('sets').value = r.sets || 1;
+        document.getElementById('wuMin').value = r.wuMin !== undefined ? r.wuMin : (r.warmUp || 0);
+        document.getElementById('wuSec').value = r.wuSec || 0;
+        document.getElementById('cdMin').value = r.cdMin !== undefined ? r.cdMin : (r.coolDown || 0);
+        document.getElementById('cdSec').value = r.cdSec || 0;
+        
         renderPhaseInputs();
         resetTimer();
     }
@@ -428,6 +466,12 @@
         osc.frequency.value = 880; osc.start(); osc.stop(audioCtx.currentTime + 0.3);
     }
 
+    function getSeconds(minId, secId) {
+        const m = parseInt(document.getElementById(minId).value) || 0;
+        const s = parseInt(document.getElementById(secId).value) || 0;
+        return (m * 60) + s;
+    }
+
     function toggleTimer() {
         if (isRunning) {
             clearInterval(timerInterval);
@@ -435,18 +479,17 @@
             isRunning = false;
         } else {
             if (currentState === 'READY') {
-                // ACTIVAR EL MODO CONCENTRACIÓN
                 document.body.classList.add('app-active');
                 
-                const wu = parseInt(document.getElementById('warmUpTime').value) || 0;
-                if (wu > 0) {
+                const wuTotal = getSeconds('wuMin', 'wuSec');
+                if (wuTotal > 0) {
                     currentState = 'WARMUP';
-                    timeLeft = wu * 60;
+                    timeLeft = wuTotal;
                 } else {
                     currentState = 'CIRCUIT';
                     currentSet = 1;
                     currentPhaseIndex = 0;
-                    timeLeft = phases[0].time * 60;
+                    timeLeft = (phases[0].min * 60) + phases[0].sec;
                 }
                 updateUI();
             }
@@ -463,20 +506,20 @@
 
     function switchPhase() {
         const totalSets = parseInt(document.getElementById('sets').value);
-        const cd = parseInt(document.getElementById('coolDownTime').value) || 0;
+        const cdTotal = getSeconds('cdMin', 'cdSec');
 
         if (currentState === 'WARMUP') {
             currentState = 'CIRCUIT';
             currentSet = 1;
             currentPhaseIndex = 0;
-            timeLeft = phases[0].time * 60;
+            timeLeft = (phases[0].min * 60) + phases[0].sec;
         } else if (currentState === 'CIRCUIT') {
             currentPhaseIndex++;
             if (currentPhaseIndex >= phases.length) {
                 if (currentSet >= totalSets) {
-                    if (cd > 0) {
+                    if (cdTotal > 0) {
                         currentState = 'COOLDOWN';
-                        timeLeft = cd * 60;
+                        timeLeft = cdTotal;
                     } else {
                         finish();
                         return;
@@ -484,10 +527,10 @@
                 } else {
                     currentSet++;
                     currentPhaseIndex = 0;
-                    timeLeft = phases[currentPhaseIndex].time * 60;
+                    timeLeft = (phases[currentPhaseIndex].min * 60) + phases[currentPhaseIndex].sec;
                 }
             } else {
-                timeLeft = phases[currentPhaseIndex].time * 60;
+                timeLeft = (phases[currentPhaseIndex].min * 60) + phases[currentPhaseIndex].sec;
             }
         } else if (currentState === 'COOLDOWN') {
             finish();
@@ -529,8 +572,8 @@
         if (timeLeft !== undefined) {
             t = timeLeft;
         } else {
-            const wu = parseInt(document.getElementById('warmUpTime').value) || 0;
-            t = wu > 0 ? wu * 60 : (phases[0] ? phases[0].time * 60 : 0);
+            const wuTotal = getSeconds('wuMin', 'wuSec');
+            t = wuTotal > 0 ? wuTotal : (phases[0] ? (phases[0].min * 60) + phases[0].sec : 0);
         }
         
         const m = Math.floor(t / 60).toString().padStart(2, '0');
@@ -546,7 +589,6 @@
         currentPhaseIndex = 0;
         currentState = 'READY';
         
-        // DESACTIVAR EL MODO CONCENTRACIÓN
         document.body.classList.remove('app-active');
         
         renderTime(); 
@@ -566,7 +608,6 @@
         document.body.style.backgroundColor = "var(--bg-color)";
         roundCounterContainer.style.opacity = '0';
         
-        // DESACTIVAR EL MODO CONCENTRACIÓN
         document.body.classList.remove('app-active');
         
         isRunning = false; 
