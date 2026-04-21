@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Temporizador de Intervalos</title>
+    <style>
+        /* Estilo Minimalista tipo Apple */
+        :root {
+            --bg-color: #f5f5f7;
+            --text-color: #1d1d1f;
+            --accent-color: #0071e3;
+            --work-color: #e3f2fd; /* Azul suave para correr */
+            --rest-color: #e8f5e9; /* Verde suave para caminar */
+            --card-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Cabecera y Controles de Audio */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .sound-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-color);
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .sound-toggle:hover { opacity: 1; }
+
+        /* Pantalla del Temporizador */
+        .timer-display {
+            text-align: center;
+            background-color: var(--card-bg);
+            padding: 3rem 1rem;
+            border-radius: 24px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+
+        .time {
+            font-size: 5rem;
+            font-weight: 700;
+            line-height: 1;
+            letter-spacing: -0.05em;
+            margin-bottom: 0.5rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .sets-display {
+            font-size: 1rem;
+            color: #86868b;
+            margin-top: 0.5rem;
+        }
+
+        /* Controles Principales */
+        .main-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        button {
+            border: none;
+            border-radius: 98px;
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        button:active { transform: scale(0.96); }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            flex-grow: 1;
+        }
+
+        .btn-secondary {
+            background-color: #e5e5ea;
+            color: var(--text-color);
+        }
+
+        /* Ajustes de Intervalos */
+        .settings {
+            background-color: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .input-group label {
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        input[type="number"] {
+            width: 70px;
+            padding: 0.5rem;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        /* Bloc de Notas */
+        .notes-section {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .notes-section label {
+            font-weight: 600;
+            font-size: 1rem;
+            padding-left: 0.5rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 1rem;
+            border: 1px solid #d2d2d7;
+            border-radius: 16px;
+            resize: none;
+            font-family: inherit;
+            font-size: 0.95rem;
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Mi Temporizador</h1>
+        <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">🔊</button>
+    </div>
+
+    <div class="timer-display" id="displayCard">
+        <div class="time" id="timeDisplay">01:00</div>
+        <div class="status" id="statusDisplay">Preparado</div>
+        <div class="sets-display">Ronda <span id="currentSet">1</span> de <span id="totalSetsDisplay">8</span></div>
+    </div>
+
+    <div class="main-controls">
+        <button class="btn-secondary" onclick="resetTimer()">Reiniciar</button>
+        <button class="btn-primary" id="startBtn" onclick="toggleTimer()">Iniciar</button>
+    </div>
+
+    <div class="settings">
+        <div class="input-group">
+            <label for="workTime">Correr (minutos)</label>
+            <input type="number" id="workTime" value="1" min="1" onchange="updateSettings()">
+        </div>
+        <div class="input-group">
+            <label for="restTime">Caminar (minutos)</label>
+            <input type="number" id="restTime" value="2" min="1" onchange="updateSettings()">
+        </div>
+        <div class="input-group">
+            <label for="sets">Repeticiones</label>
+            <input type="number" id="sets" value="8" min="1" onchange="updateSettings()">
+        </div>
+    </div>
+
+    <div class="notes-section">
+        <label for="notepad">Mi Rutina / Notas</label>
+        <textarea id="notepad" placeholder="Escribe aquí tu rutina, pesos, o cómo te sentiste hoy..."></textarea>
+    </div>
+</div>
+
+<script>
+    // Variables de estado
+    let isRunning = false;
+    let isWorkPhase = true; // true = Correr, false = Caminar
+    let timerInterval;
+    let timeLeft;
+    let currentSetCount = 1;
+    let soundEnabled = true;
+
+    // Contexto de Audio para el Beep (sin necesidad de archivos externos)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Elementos del DOM
+    const timeDisplay = document.getElementById('timeDisplay');
+    const statusDisplay = document.getElementById('statusDisplay');
+    const currentSetElement = document.getElementById('currentSet');
+    const totalSetsDisplay = document.getElementById('totalSetsDisplay');
+    const startBtn = document.getElementById('startBtn');
+    const soundBtn = document.getElementById('soundBtn');
+    const notepad = document.getElementById('notepad');
+
+    // Cargar notas guardadas al abrir la app
+    if(localStorage.getItem('rutinaNotas')) {
+        notepad.value = localStorage.getItem('rutinaNotas');
+    }
+
+    // Guardar notas automáticamente mientras se escribe
+    notepad.addEventListener('input', () => {
+        localStorage.setItem('rutinaNotas', notepad.value);
+    });
+
+    function getSettings() {
+        return {
+            workSeconds: parseInt(document.getElementById('workTime').value) * 60,
+            restSeconds: parseInt(document.getElementById('restTime').value) * 60,
+            totalSets: parseInt(document.getElementById('sets').value)
+        };
+    }
+
+    function updateSettings() {
+        if (!isRunning) {
+            resetTimer();
+        }
+        document.getElementById('totalSetsDisplay').innerText = document.getElementById('sets').value;
+    }
+
+    function formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function playBeep() {
+        if (!soundEnabled) return;
+        
+        // Reanudar el contexto de audio por si el navegador lo suspendió
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Frecuencia del tono
+        
+        gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5); // Efecto de desvanecimiento
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.5);
+    }
+
+    function toggleSound() {
+        soundEnabled = !soundEnabled;
+        soundBtn.innerText = soundEnabled ? '🔊' : '🔇';
+        soundBtn.style.opacity = soundEnabled ? '1' : '0.4';
+    }
+
+    function toggleTimer() {
+        if (isRunning) {
+            clearInterval(timerInterval);
+            startBtn.innerText = 'Reanudar';
+            startBtn.style.backgroundColor = '#34c759'; // Verde estilo Apple para reanudar
+            isRunning = false;
+        } else {
+            // Inicializar el tiempo si es la primera vez
+            if (timeLeft === undefined) {
+                timeLeft = getSettings().workSeconds;
+                isWorkPhase = true;
+                updatePhaseUI();
+            }
+            
+            // Requerido por iOS: inicializar el audio en una interacción del usuario
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+
+            timerInterval = setInterval(tick, 1000);
+            startBtn.innerText = 'Pausar';
+            startBtn.style.backgroundColor = '#ff3b30'; // Rojo estilo Apple para pausar
+            isRunning = true;
+        }
+    }
+
+    function tick() {
+        timeLeft--;
+        
+        if (timeLeft < 0) {
+            playBeep();
+            switchPhase();
+        } else {
+            timeDisplay.innerText = formatTime(timeLeft);
+        }
+    }
+
+    function switchPhase() {
+        const settings = getSettings();
+        
+        if (isWorkPhase) {
+            // Cambiar a descanso
+            isWorkPhase = false;
+            timeLeft = settings.restSeconds;
+        } else {
+            // Termina el descanso, verificar repeticiones
+            if (currentSetCount >= settings.totalSets) {
+                finishRoutine();
+                return;
+            }
+            // Cambiar a trabajo de nuevo
+            isWorkPhase = true;
+            currentSetCount++;
+            timeLeft = settings.workSeconds;
+        }
+        
+        updatePhaseUI();
+        timeDisplay.innerText = formatTime(timeLeft);
+    }
+
+    function updatePhaseUI() {
+        currentSetElement.innerText = currentSetCount;
+        
+        if (isWorkPhase) {
+            statusDisplay.innerText = "¡A Correr!";
+            statusDisplay.style.color = "#0071e3";
+            document.body.style.backgroundColor = "var(--work-color)";
+        } else {
+            statusDisplay.innerText = "Caminar / Descanso";
+            statusDisplay.style.color = "#34c759";
+            document.body.style.backgroundColor = "var(--rest-color)";
+        }
+    }
+
+    function finishRoutine() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        playBeep();
+        setTimeout(playBeep, 400); // Doble beep al terminar
+        
+        statusDisplay.innerText = "¡Rutina Completada!";
+        statusDisplay.style.color = "#1d1d1f";
+        document.body.style.backgroundColor = "var(--bg-color)";
+        timeDisplay.innerText = "00:00";
+        startBtn.innerText = 'Iniciar';
+        startBtn.style.backgroundColor = 'var(--accent-color)';
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        isRunning = false;
+        timeLeft = undefined;
+        currentSetCount = 1;
+        isWorkPhase = true;
+        
+        const settings = getSettings();
+        timeDisplay.innerText = formatTime(settings.workSeconds);
+        statusDisplay.innerText = "Preparado";
+        statusDisplay.style.color = "var(--accent-color)";
+        document.body.style.backgroundColor = "var(--bg-color)";
+        currentSetElement.innerText = currentSetCount;
+        
+        startBtn.innerText = 'Iniciar';
+        startBtn.style.backgroundColor = 'var(--accent-color)';
+    }
+
+    // Inicializar la pantalla
+    updateSettings();
+</script>
+
+</body>
+</html>
