@@ -67,7 +67,6 @@
             letter-spacing: -0.01em;
         }
 
-        /* Tu firma al final */
         .splash-signature {
             position: absolute;
             bottom: 2.5rem;
@@ -545,7 +544,7 @@
         if (isRunning) {
             clearInterval(timerInterval);
             startBtn.innerText = 'Resume'; 
-            startBtn.style.backgroundColor = '#ff3b30'; 
+            startBtn.style.backgroundColor = '#34c759'; // Cambiado a verde al pausar
             isRunning = false;
         } else {
             if (currentState === 'READY') {
@@ -570,7 +569,7 @@
                 renderTime();
             }, 1000);
             startBtn.innerText = 'Pause'; 
-            startBtn.style.backgroundColor = '#ff3b30'; 
+            startBtn.style.backgroundColor = '#ff3b30'; // Se mantiene rojo al correr
             isRunning = true;
         }
     }
