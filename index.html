@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Timer Pro</title>
+    <title>Intervals Pro</title>
     <style>
         :root {
             --bg-color: #f5f5f7;
@@ -41,7 +41,6 @@
             gap: 1.5rem;
         }
 
-        /* Header */
         .header {
             display: flex;
             justify-content: space-between;
@@ -50,44 +49,40 @@
         }
 
         .sound-toggle {
-            background: rgba(0,0,0,0.05);
+            background: rgba(0,0,0,0.06);
             border: none;
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            font-size: 1.2rem;
+            padding: 0.5rem 0.8rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-color);
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: opacity 0.2s;
+            letter-spacing: 0.05em;
         }
 
-        /* Timer Hero */
         .timer-hero {
             text-align: center;
-            padding: 4rem 1rem;
+            padding: 3rem 1rem;
             background: var(--card-bg);
             border-radius: 32px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.04);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            min-height: 350px;
+            min-height: 280px;
         }
 
         .time-display {
-            font-size: 8rem;
+            font-size: 5.5rem; /* Tamaño optimizado */
             font-weight: 700;
-            letter-spacing: -0.05em;
+            letter-spacing: -0.04em;
             line-height: 1;
             font-variant-numeric: tabular-nums;
-            margin: 1rem 0;
+            margin: 0.8rem 0;
         }
 
         .phase-label {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 600;
             color: var(--accent-color);
             text-transform: uppercase;
@@ -95,12 +90,11 @@
         }
 
         .set-counter {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #86868b;
             font-weight: 500;
         }
 
-        /* Main Controls */
         .controls-main {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -110,8 +104,8 @@
         button {
             border: none;
             border-radius: 16px;
-            padding: 1.2rem;
-            font-size: 1.1rem;
+            padding: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -122,7 +116,6 @@
         .btn-start { background: var(--accent-color); color: white; }
         .btn-reset { background: #e5e5ea; color: var(--text-color); }
 
-        /* Settings Card */
         .section-card {
             background: var(--card-bg);
             padding: 1.5rem;
@@ -132,14 +125,53 @@
             gap: 1.2rem;
         }
 
-        .input-row {
+        .phase-row {
+            display: grid;
+            grid-template-columns: 1fr 70px 30px;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .phase-row input {
+            padding: 0.8rem;
+            border: 1px solid #d2d2d7;
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .phase-row input[type="number"] { text-align: center; }
+
+        .btn-icon-del {
+            background: none;
+            border: none;
+            color: #ff3b30;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-add {
+            background: transparent;
+            border: 2px dashed #d2d2d7;
+            color: var(--accent-color);
+            padding: 0.8rem;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .sets-row {
             display: grid;
             grid-template-columns: 1fr 80px;
             align-items: center;
             gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f5f5f7;
         }
-
-        .input-row input {
+        
+        .sets-row input {
             padding: 0.8rem;
             border: 1px solid #d2d2d7;
             border-radius: 12px;
@@ -147,9 +179,6 @@
             text-align: center;
         }
 
-        .input-row input[type="text"] { text-align: left; width: 100%; }
-
-        /* Saved Routines */
         .saved-routines {
             display: flex;
             flex-wrap: wrap;
@@ -158,17 +187,29 @@
 
         .routine-chip {
             background: #f5f5f7;
-            padding: 0.6rem 1rem;
+            padding: 0.6rem 0.8rem;
             border-radius: 12px;
             font-size: 0.9rem;
             border: 1px solid #d2d2d7;
-            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
         }
 
-        /* Notes Area */
+        .routine-chip span:first-child { cursor: pointer; }
+
+        .delete-x {
+            color: #ff3b30;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding-left: 4px;
+        }
+
         .notes-area {
             width: 100%;
-            height: 150px;
+            height: 140px;
             padding: 1.2rem;
             border-radius: 24px;
             border: none;
@@ -178,15 +219,15 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
 
-        h2 { font-size: 1.2rem; margin-bottom: 0.5rem; padding-left: 0.5rem; }
+        h2 { font-size: 1.1rem; margin-bottom: 0.2rem; padding-left: 0.2rem; opacity: 0.8; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1 style="font-weight: 700; font-size: 1.2rem;">TEMPO</h1>
-        <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">🔊</button>
+        <h1 style="font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em;">INTERVALS</h1>
+        <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">SOUND</button>
     </div>
 
     <div class="timer-hero" id="heroCard">
@@ -202,98 +243,119 @@
 
     <div class="section-card">
         <h2>Customize Intervals</h2>
-        <div class="input-row">
-            <input type="text" id="label1" placeholder="Phase 1 name" value="Phase 1">
-            <input type="number" id="time1" value="1" min="1">
+        <div id="phasesContainer"></div>
+        <button class="btn-add" onclick="addPhase()">+ Add Phase</button>
+
+        <div class="sets-row">
+            <span style="font-weight: 500;">Total Rounds</span>
+            <input type="number" id="sets" value="8" min="1" onchange="updateUI()">
         </div>
-        <div class="input-row">
-            <input type="text" id="label2" placeholder="Phase 2 name" value="Phase 2">
-            <input type="number" id="time2" value="2" min="1">
-        </div>
-        <div class="input-row">
-            <span>Rounds</span>
-            <input type="number" id="sets" value="8" min="1">
-        </div>
-        <button class="btn-reset" style="background: #34c759; color: white;" onclick="saveRoutine()">Save this routine</button>
-        
-        <div id="routineList" class="saved-routines">
-            </div>
+
+        <button class="btn-reset" style="background: #34c759; color: white; margin-top: 0.5rem;" onclick="saveRoutine()">Save routine</button>
+        <div id="routineList" class="saved-routines"></div>
     </div>
 
     <div>
         <h2>Notes</h2>
-        <textarea id="notepad" class="notes-area" placeholder="Jot down your workout details..."></textarea>
+        <textarea id="notepad" class="notes-area" placeholder="Notes..."></textarea>
     </div>
 </div>
 
 <script>
     let isRunning = false;
-    let isPhase1 = true;
     let timerInterval;
     let timeLeft;
     let currentSet = 1;
+    let currentPhaseIndex = 0;
     let soundEnabled = true;
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let phases = [{ name: "Phase 1", time: 1 }, { name: "Phase 2", time: 2 }];
 
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const timeDisplay = document.getElementById('timeDisplay');
     const phaseDisplay = document.getElementById('phaseDisplay');
     const startBtn = document.getElementById('startBtn');
     const notepad = document.getElementById('notepad');
-    const time1Input = document.getElementById('time1');
 
-    // Update display instantly when user types a new time for Phase 1
-    time1Input.addEventListener('input', () => {
-        if (!isRunning && isPhase1) {
-            renderTime();
-        }
-    });
-
-    // Notes Initialization
     if(localStorage.getItem('notes')) notepad.value = localStorage.getItem('notes');
     notepad.addEventListener('input', () => localStorage.setItem('notes', notepad.value));
+
+    function renderPhaseInputs() {
+        const container = document.getElementById('phasesContainer');
+        container.innerHTML = '';
+        phases.forEach((p, index) => {
+            const row = document.createElement('div');
+            row.className = 'phase-row';
+            row.innerHTML = `
+                <input type="text" value="${p.name}" placeholder="Phase ${index+1}" oninput="phases[${index}].name = this.value; if(!isRunning && currentPhaseIndex === ${index}) updateUI();">
+                <input type="number" value="${p.time}" min="1" oninput="phases[${index}].time = parseInt(this.value) || 0; if(!isRunning && currentPhaseIndex === ${index}) renderTime();">
+                ${phases.length > 1 ? `<button class="btn-icon-del" onclick="removePhase(${index})">&times;</button>` : '<div></div>'}
+            `;
+            container.appendChild(row);
+        });
+    }
+
+    function addPhase() {
+        phases.push({ name: `Phase ${phases.length + 1}`, time: 1 });
+        renderPhaseInputs();
+        resetTimer();
+    }
+
+    function removePhase(index) {
+        phases.splice(index, 1);
+        renderPhaseInputs();
+        resetTimer();
+    }
     
     function loadSavedRoutines() {
-        const routines = JSON.parse(localStorage.getItem('myRoutines') || '[]');
+        const routines = JSON.parse(localStorage.getItem('myDynamicRoutines') || '[]');
         const container = document.getElementById('routineList');
         container.innerHTML = '';
-        routines.forEach((r) => {
-            const btn = document.createElement('div');
-            btn.className = 'routine-chip';
-            btn.innerText = r.name;
-            btn.onclick = () => applyRoutine(r);
-            container.appendChild(btn);
+        routines.forEach((r, index) => {
+            const chip = document.createElement('div');
+            chip.className = 'routine-chip';
+            
+            const nameSpan = document.createElement('span');
+            nameSpan.innerText = r.name;
+            nameSpan.onclick = () => applyRoutine(r);
+            
+            const delX = document.createElement('span');
+            delX.innerHTML = '&times;';
+            delX.className = 'delete-x';
+            delX.onclick = (e) => {
+                e.stopPropagation();
+                if(confirm(`Delete "${r.name}"?`)) {
+                    routines.splice(index, 1);
+                    localStorage.setItem('myDynamicRoutines', JSON.stringify(routines));
+                    loadSavedRoutines();
+                }
+            };
+            
+            chip.appendChild(nameSpan);
+            chip.appendChild(delX);
+            container.appendChild(chip);
         });
     }
 
     function saveRoutine() {
-        const name = prompt("Name for this routine:");
+        const name = prompt("Routine name:");
         if (!name) return;
-        const r = {
-            name: name,
-            l1: document.getElementById('label1').value,
-            t1: document.getElementById('time1').value,
-            l2: document.getElementById('label2').value,
-            t2: document.getElementById('time2').value,
-            s: document.getElementById('sets').value
-        };
-        const routines = JSON.parse(localStorage.getItem('myRoutines') || '[]');
-        routines.push(r);
-        localStorage.setItem('myRoutines', JSON.stringify(routines));
+        const routines = JSON.parse(localStorage.getItem('myDynamicRoutines') || '[]');
+        routines.push({ name, phasesData: JSON.parse(JSON.stringify(phases)), sets: document.getElementById('sets').value });
+        localStorage.setItem('myDynamicRoutines', JSON.stringify(routines));
         loadSavedRoutines();
     }
 
     function applyRoutine(r) {
-        document.getElementById('label1').value = r.l1;
-        document.getElementById('time1').value = r.t1;
-        document.getElementById('label2').value = r.l2;
-        document.getElementById('time2').value = r.t2;
-        document.getElementById('sets').value = r.s;
+        phases = JSON.parse(JSON.stringify(r.phasesData));
+        document.getElementById('sets').value = r.sets;
+        renderPhaseInputs();
         resetTimer();
     }
 
     function toggleSound() {
         soundEnabled = !soundEnabled;
-        document.getElementById('soundBtn').innerText = soundEnabled ? '🔊' : '🔇';
+        document.getElementById('soundBtn').innerText = soundEnabled ? 'SOUND' : 'MUTE';
+        document.getElementById('soundBtn').style.opacity = soundEnabled ? '1' : '0.5';
     }
 
     function playBeep() {
@@ -301,117 +363,72 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.frequency.value = 880;
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.3);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.frequency.value = 880; osc.start(); osc.stop(audioCtx.currentTime + 0.3);
     }
 
     function toggleTimer() {
         if (isRunning) {
             clearInterval(timerInterval);
-            startBtn.innerText = 'Resume';
-            startBtn.style.backgroundColor = '#34c759';
+            startBtn.innerText = 'Resume'; startBtn.style.backgroundColor = '#34c759';
             isRunning = false;
         } else {
-            if (timeLeft === undefined) {
-                timeLeft = parseInt(document.getElementById('time1').value) * 60;
-                isPhase1 = true;
-                updateUI();
-            }
+            if (timeLeft === undefined) { timeLeft = phases[currentPhaseIndex].time * 60; updateUI(); }
             if (audioCtx.state === 'suspended') audioCtx.resume();
             timerInterval = setInterval(() => {
                 timeLeft--;
-                if (timeLeft < 0) {
-                    playBeep();
-                    switchPhase();
-                }
+                if (timeLeft < 0) { playBeep(); switchPhase(); }
                 renderTime();
             }, 1000);
-            startBtn.innerText = 'Pause';
-            startBtn.style.backgroundColor = '#ff3b30';
+            startBtn.innerText = 'Pause'; startBtn.style.backgroundColor = '#ff3b30';
             isRunning = true;
         }
     }
 
     function switchPhase() {
-        const t1 = parseInt(document.getElementById('time1').value) * 60;
-        const t2 = parseInt(document.getElementById('time2').value) * 60;
-        const totalSets = parseInt(document.getElementById('sets').value);
-
-        if (isPhase1) {
-            isPhase1 = false;
-            timeLeft = t2;
-        } else {
-            if (currentSet >= totalSets) {
-                finish();
-                return;
-            }
-            isPhase1 = true;
-            currentSet++;
-            timeLeft = t1;
+        currentPhaseIndex++;
+        if (currentPhaseIndex >= phases.length) {
+            const totalSets = parseInt(document.getElementById('sets').value);
+            if (currentSet >= totalSets) { finish(); return; }
+            currentSet++; currentPhaseIndex = 0;
         }
+        timeLeft = phases[currentPhaseIndex].time * 60;
         updateUI();
     }
 
     function updateUI() {
-        const l1 = document.getElementById('label1').value || "Phase 1";
-        const l2 = document.getElementById('label2').value || "Phase 2";
-        const totalSets = document.getElementById('sets').value;
-
+        const totalSets = document.getElementById('sets').value || 1;
         document.getElementById('currentSet').innerText = currentSet;
         document.getElementById('totalSetsDisp').innerText = totalSets;
-        
-        if (isPhase1) {
-            phaseDisplay.innerText = l1;
-            document.body.style.backgroundColor = "var(--work-bg)";
-        } else {
-            phaseDisplay.innerText = l2;
-            document.body.style.backgroundColor = "var(--rest-bg)";
+        if (phases[currentPhaseIndex]) {
+            phaseDisplay.innerText = phases[currentPhaseIndex].name;
+            document.body.style.backgroundColor = currentPhaseIndex % 2 === 0 ? "var(--work-bg)" : "var(--rest-bg)";
         }
     }
 
     function renderTime() {
-        // Fix for NaN: fallback to input value if timeLeft is undefined
-        let timeInSeconds = timeLeft;
-        if (timeInSeconds === undefined) {
-            const inputVal = parseInt(document.getElementById('time1').value);
-            timeInSeconds = isNaN(inputVal) ? 0 : inputVal * 60;
-        }
-        
-        const m = Math.floor(timeInSeconds / 60).toString().padStart(2, '0');
-        const s = (timeInSeconds % 60).toString().padStart(2, '0');
+        let t = timeLeft !== undefined ? timeLeft : (phases[0] ? phases[0].time * 60 : 0);
+        const m = Math.floor(t / 60).toString().padStart(2, '0');
+        const s = (t % 60).toString().padStart(2, '0');
         timeDisplay.innerText = `${m}:${s}`;
     }
 
     function resetTimer() {
-        clearInterval(timerInterval);
-        isRunning = false;
-        timeLeft = undefined;
-        currentSet = 1;
-        isPhase1 = true;
-        renderTime();
-        phaseDisplay.innerText = "READY";
+        clearInterval(timerInterval); isRunning = false; timeLeft = undefined;
+        currentSet = 1; currentPhaseIndex = 0;
+        renderTime(); phaseDisplay.innerText = "READY";
         document.body.style.backgroundColor = "var(--bg-color)";
-        startBtn.innerText = 'Start';
-        startBtn.style.backgroundColor = 'var(--accent-color)';
+        startBtn.innerText = 'Start'; startBtn.style.backgroundColor = 'var(--accent-color)';
         updateUI();
     }
 
     function finish() {
-        clearInterval(timerInterval);
-        playBeep();
-        setTimeout(playBeep, 400);
-        phaseDisplay.innerText = "DONE!";
-        document.body.style.backgroundColor = "var(--bg-color)";
-        isRunning = false;
-        startBtn.innerText = 'Start';
-        timeLeft = undefined;
+        clearInterval(timerInterval); playBeep(); setTimeout(playBeep, 400);
+        phaseDisplay.innerText = "DONE!"; document.body.style.backgroundColor = "var(--bg-color)";
+        isRunning = false; startBtn.innerText = 'Start'; timeLeft = undefined;
     }
 
-    loadSavedRoutines();
-    resetTimer();
+    renderPhaseInputs(); loadSavedRoutines(); resetTimer();
 </script>
 </body>
 </html>
