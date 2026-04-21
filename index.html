@@ -35,29 +35,60 @@
             padding: env(safe-area-inset-top) 1rem 2rem;
         }
 
-        .container {
+        /* La Tarjeta Principal ("El mismo cuadrito") */
+        .main-card {
+            background: var(--card-bg);
             width: 100%;
             max-width: 440px;
+            border-radius: 32px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.5s ease;
+            overflow: hidden;
+        }
+
+        .card-content {
+            padding: 2rem 1.5rem;
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
-            transition: all 0.4s ease;
+            height: 100%;
         }
 
-        body.app-active .container {
-            flex: 1;
+        /* Comportamiento del Modo Concentración */
+        body.app-active {
+            padding: 0;
+        }
+
+        body.app-active .main-card {
+            background: transparent;
+            box-shadow: none;
+            max-width: 100%;
+            border-radius: 0;
+            height: 100vh;
+        }
+
+        body.app-active .card-content {
             justify-content: center;
+            padding: 2rem;
         }
 
-        body.app-active .edit-section {
+        body.app-active .edit-section,
+        body.app-active .divider {
             display: none;
         }
 
+        body.app-active .time-display {
+            font-size: 7rem; /* Números más grandes en pantalla completa */
+        }
+
+        /* Encabezado */
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem 0.5rem;
+            padding-bottom: 0.5rem;
         }
 
         .sound-toggle {
@@ -70,24 +101,16 @@
             color: var(--text-color);
             cursor: pointer;
             letter-spacing: 0.05em;
+            transition: opacity 0.2s;
         }
 
+        /* Temporizador */
         .timer-hero {
             text-align: center;
-            padding: 3rem 1rem;
-            background: var(--card-bg);
-            border-radius: 32px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.04);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            min-height: 280px;
             transition: all 0.4s ease;
-        }
-
-        body.app-active .timer-hero {
-            min-height: 40vh; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
         }
 
         .time-display {
@@ -97,6 +120,7 @@
             line-height: 1;
             font-variant-numeric: tabular-nums;
             margin: 0.8rem 0;
+            transition: all 0.4s ease;
         }
 
         .phase-label {
@@ -115,6 +139,7 @@
             transition: opacity 0.3s ease;
         }
 
+        /* Botones Principales */
         .controls-main {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -132,24 +157,23 @@
         }
 
         button:active { transform: scale(0.97); }
-
         .btn-start { background: var(--accent-color); color: white; }
         .btn-reset { background: #e5e5ea; color: var(--text-color); }
 
+        /* Divisores */
+        .divider { 
+            height: 1px; 
+            background: #e5e5ea; 
+            margin: 0.5rem 0; 
+            border-radius: 1px;
+        }
+
+        /* Sección de Edición */
         .edit-section {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
             width: 100%;
-        }
-
-        .section-card {
-            background: var(--card-bg);
-            padding: 1.5rem;
-            border-radius: 24px;
-            display: flex;
-            flex-direction: column;
-            gap: 1.2rem;
         }
 
         .phase-row {
@@ -165,7 +189,6 @@
             min-width: 0;
         }
 
-        /* Estilos para los inputs de tiempo dobles (min:sec) */
         .time-inputs {
             display: flex;
             align-items: center;
@@ -197,23 +220,21 @@
             justify-content: center;
         }
 
-        .phase-row input, .special-row input {
+        input {
             border: 1px solid #d2d2d7;
             border-radius: 10px;
             font-size: 0.95rem;
+            background: #fbfbfd;
         }
         
-        .phase-row input[type="text"] {
-             padding: 0.8rem;
-        }
+        input[type="text"] { padding: 0.8rem; }
+        input:focus { outline: 2px solid var(--accent-color); border-color: transparent; }
 
         .special-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background-color: #f5f5f7;
-            padding: 0.8rem 1rem;
-            border-radius: 12px;
+            padding: 0.5rem 0;
             font-weight: 500;
             font-size: 0.95rem;
         }
@@ -225,12 +246,14 @@
             padding: 0.8rem;
             border-radius: 12px;
             font-size: 0.95rem;
+            margin-top: 0.5rem;
         }
 
         .saved-routines {
             display: flex;
             flex-wrap: wrap;
             gap: 0.5rem;
+            margin-top: 0.5rem;
         }
 
         .routine-chip {
@@ -257,81 +280,83 @@
 
         .notes-area {
             width: 100%;
-            height: 140px;
-            padding: 1.2rem;
-            border-radius: 24px;
-            border: none;
-            background: var(--card-bg);
-            font-size: 1rem;
+            height: 120px;
+            padding: 1rem;
+            border-radius: 16px;
+            border: 1px solid #d2d2d7;
+            background: #fbfbfd;
+            font-size: 0.95rem;
             resize: none;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         }
 
-        h2 { font-size: 1.1rem; margin-bottom: 0.2rem; padding-left: 0.2rem; opacity: 0.8; }
-        .divider { height: 1px; background: #f5f5f7; margin: 0.5rem 0; }
+        h2 { font-size: 1.1rem; margin-bottom: 0.5rem; opacity: 0.9; font-weight: 600;}
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1 style="font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em;">INTERVALS</h1>
-        <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">SOUND</button>
-    </div>
+<div class="main-card" id="mainCard">
+    <div class="card-content">
+        
+        <div class="header">
+            <h1 style="font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em;">INTERVALS</h1>
+            <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">SOUND</button>
+        </div>
 
-    <div class="timer-hero" id="heroCard">
-        <div class="set-counter" id="roundCounterContainer">Round <span id="currentSet">1</span> / <span id="totalSetsDisp">8</span></div>
-        <div class="time-display" id="timeDisplay">00:00</div>
-        <div class="phase-label" id="phaseDisplay">READY</div>
-    </div>
+        <div class="timer-hero" id="heroCard">
+            <div class="set-counter" id="roundCounterContainer">Round <span id="currentSet">1</span> / <span id="totalSetsDisp">8</span></div>
+            <div class="time-display" id="timeDisplay">00:00</div>
+            <div class="phase-label" id="phaseDisplay">READY</div>
+        </div>
 
-    <div class="controls-main">
-        <button class="btn-reset" onclick="resetTimer()">Reset</button>
-        <button class="btn-start" id="startBtn" onclick="toggleTimer()">Start</button>
-    </div>
+        <div class="controls-main">
+            <button class="btn-reset" onclick="resetTimer()">Reset</button>
+            <button class="btn-start" id="startBtn" onclick="toggleTimer()">Start</button>
+        </div>
 
-    <div id="editSection" class="edit-section">
-        <div class="section-card">
-            <h2>Customize Intervals</h2>
+        <div id="editSection" class="edit-section">
+            <div class="divider"></div>
             
-            <div class="special-row">
-                <span>Warm Up</span>
-                <div class="time-inputs">
-                    <input type="number" id="wuMin" value="5" min="0" placeholder="m" onchange="updateUI()">
-                    <span>:</span>
-                    <input type="number" id="wuSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
+            <div>
+                <h2>Interval Settings</h2>
+                
+                <div class="special-row">
+                    <span>Warm Up</span>
+                    <div class="time-inputs">
+                        <input type="number" id="wuMin" value="5" min="0" placeholder="m" onchange="updateUI()">
+                        <span>:</span>
+                        <input type="number" id="wuSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
+                    </div>
                 </div>
+
+                <div id="phasesContainer" style="margin-top: 0.5rem;"></div>
+                <button class="btn-add" onclick="addPhase()" style="width: 100%;">+ Add Phase</button>
+
+                <div class="special-row" style="margin-top: 0.5rem;">
+                    <span>Total Rounds</span>
+                    <input type="number" id="sets" value="8" min="1" style="width: 60px; text-align: center; padding: 0.6rem; border: 1px solid #d2d2d7; border-radius: 10px;" onchange="updateUI()">
+                </div>
+
+                <div class="special-row">
+                    <span>Cool Down</span>
+                    <div class="time-inputs">
+                        <input type="number" id="cdMin" value="0" min="0" placeholder="m" onchange="updateUI()">
+                        <span>:</span>
+                        <input type="number" id="cdSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
+                    </div>
+                </div>
+
+                <button class="btn-reset" style="background: #34c759; color: white; margin-top: 1rem; width: 100%;" onclick="saveRoutine()">Save this routine</button>
+                <div id="routineList" class="saved-routines"></div>
             </div>
 
             <div class="divider"></div>
 
-            <div id="phasesContainer"></div>
-            <button class="btn-add" onclick="addPhase()">+ Add Phase</button>
-
-            <div class="special-row" style="background: transparent; padding: 0;">
-                <span>Total Rounds</span>
-                <input type="number" id="sets" value="8" min="1" style="width: 60px; text-align: center; padding: 0.8rem; border: 1px solid #d2d2d7; border-radius: 10px;" onchange="updateUI()">
+            <div>
+                <h2>Notes</h2>
+                <textarea id="notepad" class="notes-area" placeholder="Jot down your workout details..."></textarea>
             </div>
-
-            <div class="divider"></div>
-
-            <div class="special-row">
-                <span>Cool Down</span>
-                <div class="time-inputs">
-                    <input type="number" id="cdMin" value="0" min="0" placeholder="m" onchange="updateUI()">
-                    <span>:</span>
-                    <input type="number" id="cdSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
-                </div>
-            </div>
-
-            <button class="btn-reset" style="background: #34c759; color: white; margin-top: 0.5rem;" onclick="saveRoutine()">Save routine</button>
-            <div id="routineList" class="saved-routines"></div>
         </div>
 
-        <div>
-            <h2>Notes</h2>
-            <textarea id="notepad" class="notes-area" placeholder="Notes..."></textarea>
-        </div>
     </div>
 </div>
 
@@ -434,7 +459,6 @@
     }
 
     function applyRoutine(r) {
-        // Compatibilidad con rutinas viejas que solo tenían minutos
         phases = r.phasesData.map(p => ({
             name: p.name,
             min: p.min !== undefined ? p.min : (p.time || 0),
