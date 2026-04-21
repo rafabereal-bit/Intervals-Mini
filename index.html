@@ -12,8 +12,8 @@
             --card-bg: #ffffff;
             --work-bg: #e3f2fd;
             --rest-bg: #e8f5e9;
-            --warmup-bg: #fff8e1; /* Naranja muy suave */
-            --cooldown-bg: #e0f7fa; /* Celeste frío suave */
+            --warmup-bg: #fff8e1;
+            --cooldown-bg: #e0f7fa;
         }
 
         * {
@@ -41,6 +41,17 @@
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            transition: all 0.4s ease;
+        }
+
+        /* Modo Concentración (Focus Mode) */
+        body.app-active .container {
+            flex: 1;
+            justify-content: center;
+        }
+
+        body.app-active .edit-section {
+            display: none;
         }
 
         .header {
@@ -72,6 +83,12 @@
             flex-direction: column;
             justify-content: center;
             min-height: 280px;
+            transition: all 0.4s ease;
+        }
+
+        body.app-active .timer-hero {
+            min-height: 40vh; /* Se hace más grande al entrenar */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06);
         }
 
         .time-display {
@@ -89,12 +106,14 @@
             color: var(--accent-color);
             text-transform: uppercase;
             letter-spacing: 0.05em;
+            transition: color 0.3s ease;
         }
 
         .set-counter {
             font-size: 1rem;
             color: #86868b;
             font-weight: 500;
+            transition: opacity 0.3s ease;
         }
 
         .controls-main {
@@ -118,6 +137,14 @@
         .btn-start { background: var(--accent-color); color: white; }
         .btn-reset { background: #e5e5ea; color: var(--text-color); }
 
+        /* Contenedor de la sección editable */
+        .edit-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+        }
+
         .section-card {
             background: var(--card-bg);
             padding: 1.5rem;
@@ -127,7 +154,6 @@
             gap: 1.2rem;
         }
 
-        /* FIX: Flexbox para evitar que se salga el botón de borrar */
         .phase-row {
             display: flex;
             align-items: center;
@@ -137,19 +163,19 @@
         }
 
         .phase-row input[type="text"] {
-            flex: 1; /* Toma todo el espacio disponible */
-            min-width: 0; /* Previene desbordamientos */
+            flex: 1;
+            min-width: 0;
         }
 
         .phase-row input[type="number"], .special-row input[type="number"] {
             width: 70px;
-            flex-shrink: 0; /* Evita que el input numérico se encoja */
+            flex-shrink: 0;
             text-align: center;
         }
 
         .btn-icon-del {
             width: 30px;
-            flex-shrink: 0; /* Evita que el botón se encoja */
+            flex-shrink: 0;
             background: none;
             border: none;
             color: #ff3b30;
@@ -249,38 +275,40 @@
         <button class="btn-start" id="startBtn" onclick="toggleTimer()">Start</button>
     </div>
 
-    <div class="section-card">
-        <h2>Customize Intervals</h2>
-        
-        <div class="special-row">
-            <span>Warm Up (min)</span>
-            <input type="number" id="warmUpTime" value="5" min="0" onchange="updateUI()">
+    <div id="editSection" class="edit-section">
+        <div class="section-card">
+            <h2>Customize Intervals</h2>
+            
+            <div class="special-row">
+                <span>Warm Up (min)</span>
+                <input type="number" id="warmUpTime" value="5" min="0" onchange="updateUI()">
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="phasesContainer"></div>
+            <button class="btn-add" onclick="addPhase()">+ Add Phase</button>
+
+            <div class="special-row" style="background: transparent; padding: 0;">
+                <span>Total Rounds</span>
+                <input type="number" id="sets" value="8" min="1" onchange="updateUI()">
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="special-row">
+                <span>Cool Down (min)</span>
+                <input type="number" id="coolDownTime" value="0" min="0" onchange="updateUI()">
+            </div>
+
+            <button class="btn-reset" style="background: #34c759; color: white; margin-top: 0.5rem;" onclick="saveRoutine()">Save routine</button>
+            <div id="routineList" class="saved-routines"></div>
         </div>
 
-        <div class="divider"></div>
-
-        <div id="phasesContainer"></div>
-        <button class="btn-add" onclick="addPhase()">+ Add Phase</button>
-
-        <div class="special-row" style="background: transparent; padding: 0;">
-            <span>Total Rounds</span>
-            <input type="number" id="sets" value="8" min="1" onchange="updateUI()">
+        <div>
+            <h2>Notes</h2>
+            <textarea id="notepad" class="notes-area" placeholder="Notes..."></textarea>
         </div>
-
-        <div class="divider"></div>
-
-        <div class="special-row">
-            <span>Cool Down (min)</span>
-            <input type="number" id="coolDownTime" value="0" min="0" onchange="updateUI()">
-        </div>
-
-        <button class="btn-reset" style="background: #34c759; color: white; margin-top: 0.5rem;" onclick="saveRoutine()">Save routine</button>
-        <div id="routineList" class="saved-routines"></div>
-    </div>
-
-    <div>
-        <h2>Notes</h2>
-        <textarea id="notepad" class="notes-area" placeholder="Notes..."></textarea>
     </div>
 </div>
 
@@ -407,6 +435,9 @@
             isRunning = false;
         } else {
             if (currentState === 'READY') {
+                // ACTIVAR EL MODO CONCENTRACIÓN
+                document.body.classList.add('app-active');
+                
                 const wu = parseInt(document.getElementById('warmUpTime').value) || 0;
                 if (wu > 0) {
                     currentState = 'WARMUP';
@@ -474,11 +505,12 @@
             phaseDisplay.innerText = "READY";
             document.body.style.backgroundColor = "var(--bg-color)";
             roundCounterContainer.style.opacity = '1';
+            phaseDisplay.style.color = "var(--accent-color)";
         } else if (currentState === 'WARMUP') {
             phaseDisplay.innerText = "WARM UP";
-            phaseDisplay.style.color = "#d97706"; // Tono cálido
+            phaseDisplay.style.color = "#d97706"; 
             document.body.style.backgroundColor = "var(--warmup-bg)";
-            roundCounterContainer.style.opacity = '0'; // Oculta el contador en calentamiento
+            roundCounterContainer.style.opacity = '0'; 
         } else if (currentState === 'CIRCUIT') {
             phaseDisplay.innerText = phases[currentPhaseIndex] ? phases[currentPhaseIndex].name : "PHASE";
             phaseDisplay.style.color = "var(--accent-color)";
@@ -486,9 +518,9 @@
             roundCounterContainer.style.opacity = '1';
         } else if (currentState === 'COOLDOWN') {
             phaseDisplay.innerText = "COOL DOWN";
-            phaseDisplay.style.color = "#0284c7"; // Tono azul frío
+            phaseDisplay.style.color = "#0284c7"; 
             document.body.style.backgroundColor = "var(--cooldown-bg)";
-            roundCounterContainer.style.opacity = '0'; // Oculta el contador en enfriamiento
+            roundCounterContainer.style.opacity = '0'; 
         }
     }
 
@@ -514,6 +546,9 @@
         currentPhaseIndex = 0;
         currentState = 'READY';
         
+        // DESACTIVAR EL MODO CONCENTRACIÓN
+        document.body.classList.remove('app-active');
+        
         renderTime(); 
         updateUI();
         
@@ -530,6 +565,9 @@
         phaseDisplay.style.color = "var(--text-color)";
         document.body.style.backgroundColor = "var(--bg-color)";
         roundCounterContainer.style.opacity = '0';
+        
+        // DESACTIVAR EL MODO CONCENTRACIÓN
+        document.body.classList.remove('app-active');
         
         isRunning = false; 
         startBtn.innerText = 'Start'; 
