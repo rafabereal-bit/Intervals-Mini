@@ -35,7 +35,6 @@
             padding: env(safe-area-inset-top) 1rem 2rem;
         }
 
-        /* La Tarjeta Principal ("El mismo cuadrito") */
         .main-card {
             background: var(--card-bg);
             width: 100%;
@@ -56,11 +55,8 @@
             height: 100%;
         }
 
-        /* Comportamiento del Modo Concentración */
-        body.app-active {
-            padding: 0;
-        }
-
+        /* Modo Concentración */
+        body.app-active { padding: 0; }
         body.app-active .main-card {
             background: transparent;
             box-shadow: none;
@@ -68,22 +64,10 @@
             border-radius: 0;
             height: 100vh;
         }
+        body.app-active .card-content { justify-content: center; padding: 2rem; }
+        body.app-active .edit-section, body.app-active .divider { display: none; }
+        body.app-active .time-display { font-size: 7rem; }
 
-        body.app-active .card-content {
-            justify-content: center;
-            padding: 2rem;
-        }
-
-        body.app-active .edit-section,
-        body.app-active .divider {
-            display: none;
-        }
-
-        body.app-active .time-display {
-            font-size: 7rem; /* Números más grandes en pantalla completa */
-        }
-
-        /* Encabezado */
         .header {
             display: flex;
             justify-content: space-between;
@@ -104,7 +88,6 @@
             transition: opacity 0.2s;
         }
 
-        /* Temporizador */
         .timer-hero {
             text-align: center;
             display: flex;
@@ -139,7 +122,6 @@
             transition: opacity 0.3s ease;
         }
 
-        /* Botones Principales */
         .controls-main {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -160,15 +142,8 @@
         .btn-start { background: var(--accent-color); color: white; }
         .btn-reset { background: #e5e5ea; color: var(--text-color); }
 
-        /* Divisores */
-        .divider { 
-            height: 1px; 
-            background: #e5e5ea; 
-            margin: 0.5rem 0; 
-            border-radius: 1px;
-        }
+        .divider { height: 1px; background: #e5e5ea; margin: 0.5rem 0; border-radius: 1px; }
 
-        /* Sección de Edición */
         .edit-section {
             display: flex;
             flex-direction: column;
@@ -179,7 +154,7 @@
         .phase-row {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
             margin-bottom: 0.5rem;
             width: 100%;
         }
@@ -189,26 +164,14 @@
             min-width: 0;
         }
 
-        .time-inputs {
-            display: flex;
-            align-items: center;
-            gap: 4px;
+        .phase-row input[type="number"], .special-row input[type="number"] {
+            width: 70px;
             flex-shrink: 0;
-        }
-
-        .time-inputs input[type="number"] {
-            width: 48px;
             text-align: center;
-            padding: 0.8rem 0.2rem;
-        }
-
-        .time-inputs span {
-            font-weight: 600;
-            color: #86868b;
         }
 
         .btn-icon-del {
-            width: 24px;
+            width: 30px;
             flex-shrink: 0;
             background: none;
             border: none;
@@ -225,9 +188,9 @@
             border-radius: 10px;
             font-size: 0.95rem;
             background: #fbfbfd;
+            padding: 0.8rem;
         }
         
-        input[type="text"] { padding: 0.8rem; }
         input:focus { outline: 2px solid var(--accent-color); border-color: transparent; }
 
         .special-row {
@@ -269,14 +232,7 @@
         }
 
         .routine-chip span:first-child { cursor: pointer; }
-
-        .delete-x {
-            color: #ff3b30;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding-left: 4px;
-        }
+        .delete-x { color: #ff3b30; font-weight: bold; font-size: 1.1rem; cursor: pointer; padding-left: 4px; }
 
         .notes-area {
             width: 100%;
@@ -320,12 +276,8 @@
                 <h2>Interval Settings</h2>
                 
                 <div class="special-row">
-                    <span>Warm Up</span>
-                    <div class="time-inputs">
-                        <input type="number" id="wuMin" value="5" min="0" placeholder="m" onchange="updateUI()">
-                        <span>:</span>
-                        <input type="number" id="wuSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
-                    </div>
+                    <span>Warm Up (min)</span>
+                    <input type="number" id="warmUpTime" value="5" min="0" onchange="updateUI()">
                 </div>
 
                 <div id="phasesContainer" style="margin-top: 0.5rem;"></div>
@@ -333,16 +285,12 @@
 
                 <div class="special-row" style="margin-top: 0.5rem;">
                     <span>Total Rounds</span>
-                    <input type="number" id="sets" value="8" min="1" style="width: 60px; text-align: center; padding: 0.6rem; border: 1px solid #d2d2d7; border-radius: 10px;" onchange="updateUI()">
+                    <input type="number" id="sets" value="8" min="1" onchange="updateUI()">
                 </div>
 
                 <div class="special-row">
-                    <span>Cool Down</span>
-                    <div class="time-inputs">
-                        <input type="number" id="cdMin" value="0" min="0" placeholder="m" onchange="updateUI()">
-                        <span>:</span>
-                        <input type="number" id="cdSec" value="0" min="0" max="59" placeholder="s" onchange="updateUI()">
-                    </div>
+                    <span>Cool Down (min)</span>
+                    <input type="number" id="coolDownTime" value="0" min="0" onchange="updateUI()">
                 </div>
 
                 <button class="btn-reset" style="background: #34c759; color: white; margin-top: 1rem; width: 100%;" onclick="saveRoutine()">Save this routine</button>
@@ -368,7 +316,7 @@
     let currentPhaseIndex = 0;
     let currentState = 'READY'; 
     let soundEnabled = true;
-    let phases = [{ name: "Phase 1", min: 1, sec: 0 }, { name: "Phase 2", min: 2, sec: 0 }];
+    let phases = [{ name: "Phase 1", time: 1 }, { name: "Phase 2", time: 2 }];
 
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const timeDisplay = document.getElementById('timeDisplay');
@@ -388,19 +336,15 @@
             row.className = 'phase-row';
             row.innerHTML = `
                 <input type="text" value="${p.name}" placeholder="Phase ${index+1}" oninput="phases[${index}].name = this.value; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) updateUI();">
-                <div class="time-inputs">
-                    <input type="number" value="${p.min}" min="0" placeholder="m" oninput="phases[${index}].min = parseInt(this.value) || 0; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) renderTime();">
-                    <span>:</span>
-                    <input type="number" value="${p.sec}" min="0" max="59" placeholder="s" oninput="phases[${index}].sec = parseInt(this.value) || 0; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) renderTime();">
-                </div>
-                ${phases.length > 1 ? `<button class="btn-icon-del" onclick="removePhase(${index})">&times;</button>` : '<div style="width: 24px;"></div>'}
+                <input type="number" value="${p.time}" min="1" oninput="phases[${index}].time = parseInt(this.value) || 0; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) renderTime();">
+                ${phases.length > 1 ? `<button class="btn-icon-del" onclick="removePhase(${index})">&times;</button>` : '<div style="width: 30px;"></div>'}
             `;
             container.appendChild(row);
         });
     }
 
     function addPhase() {
-        phases.push({ name: `Phase ${phases.length + 1}`, min: 1, sec: 0 });
+        phases.push({ name: `Phase ${phases.length + 1}`, time: 1 });
         renderPhaseInputs();
         resetTimer();
     }
@@ -449,27 +393,23 @@
             name, 
             phasesData: JSON.parse(JSON.stringify(phases)), 
             sets: document.getElementById('sets').value,
-            wuMin: document.getElementById('wuMin').value,
-            wuSec: document.getElementById('wuSec').value,
-            cdMin: document.getElementById('cdMin').value,
-            cdSec: document.getElementById('cdSec').value
+            warmUp: document.getElementById('warmUpTime').value,
+            coolDown: document.getElementById('coolDownTime').value
         });
         localStorage.setItem('myDynamicRoutines', JSON.stringify(routines));
         loadSavedRoutines();
     }
 
     function applyRoutine(r) {
+        // Compatibilidad: lee 'time', o convierte 'min' a 'time' si era rutina vieja
         phases = r.phasesData.map(p => ({
             name: p.name,
-            min: p.min !== undefined ? p.min : (p.time || 0),
-            sec: p.sec || 0
+            time: p.time !== undefined ? p.time : (p.min || 0)
         }));
         
         document.getElementById('sets').value = r.sets || 1;
-        document.getElementById('wuMin').value = r.wuMin !== undefined ? r.wuMin : (r.warmUp || 0);
-        document.getElementById('wuSec').value = r.wuSec || 0;
-        document.getElementById('cdMin').value = r.cdMin !== undefined ? r.cdMin : (r.coolDown || 0);
-        document.getElementById('cdSec').value = r.cdSec || 0;
+        document.getElementById('warmUpTime').value = r.warmUp !== undefined ? r.warmUp : (r.wuMin || 0);
+        document.getElementById('coolDownTime').value = r.coolDown !== undefined ? r.coolDown : (r.cdMin || 0);
         
         renderPhaseInputs();
         resetTimer();
@@ -490,12 +430,6 @@
         osc.frequency.value = 880; osc.start(); osc.stop(audioCtx.currentTime + 0.3);
     }
 
-    function getSeconds(minId, secId) {
-        const m = parseInt(document.getElementById(minId).value) || 0;
-        const s = parseInt(document.getElementById(secId).value) || 0;
-        return (m * 60) + s;
-    }
-
     function toggleTimer() {
         if (isRunning) {
             clearInterval(timerInterval);
@@ -505,15 +439,15 @@
             if (currentState === 'READY') {
                 document.body.classList.add('app-active');
                 
-                const wuTotal = getSeconds('wuMin', 'wuSec');
-                if (wuTotal > 0) {
+                const wu = parseInt(document.getElementById('warmUpTime').value) || 0;
+                if (wu > 0) {
                     currentState = 'WARMUP';
-                    timeLeft = wuTotal;
+                    timeLeft = wu * 60;
                 } else {
                     currentState = 'CIRCUIT';
                     currentSet = 1;
                     currentPhaseIndex = 0;
-                    timeLeft = (phases[0].min * 60) + phases[0].sec;
+                    timeLeft = phases[0].time * 60;
                 }
                 updateUI();
             }
@@ -530,20 +464,20 @@
 
     function switchPhase() {
         const totalSets = parseInt(document.getElementById('sets').value);
-        const cdTotal = getSeconds('cdMin', 'cdSec');
+        const cd = parseInt(document.getElementById('coolDownTime').value) || 0;
 
         if (currentState === 'WARMUP') {
             currentState = 'CIRCUIT';
             currentSet = 1;
             currentPhaseIndex = 0;
-            timeLeft = (phases[0].min * 60) + phases[0].sec;
+            timeLeft = phases[0].time * 60;
         } else if (currentState === 'CIRCUIT') {
             currentPhaseIndex++;
             if (currentPhaseIndex >= phases.length) {
                 if (currentSet >= totalSets) {
-                    if (cdTotal > 0) {
+                    if (cd > 0) {
                         currentState = 'COOLDOWN';
-                        timeLeft = cdTotal;
+                        timeLeft = cd * 60;
                     } else {
                         finish();
                         return;
@@ -551,10 +485,10 @@
                 } else {
                     currentSet++;
                     currentPhaseIndex = 0;
-                    timeLeft = (phases[currentPhaseIndex].min * 60) + phases[currentPhaseIndex].sec;
+                    timeLeft = phases[currentPhaseIndex].time * 60;
                 }
             } else {
-                timeLeft = (phases[currentPhaseIndex].min * 60) + phases[currentPhaseIndex].sec;
+                timeLeft = phases[currentPhaseIndex].time * 60;
             }
         } else if (currentState === 'COOLDOWN') {
             finish();
@@ -596,8 +530,8 @@
         if (timeLeft !== undefined) {
             t = timeLeft;
         } else {
-            const wuTotal = getSeconds('wuMin', 'wuSec');
-            t = wuTotal > 0 ? wuTotal : (phases[0] ? (phases[0].min * 60) + phases[0].sec : 0);
+            const wu = parseInt(document.getElementById('warmUpTime').value) || 0;
+            t = wu > 0 ? wu * 60 : (phases[0] ? phases[0].time * 60 : 0);
         }
         
         const m = Math.floor(t / 60).toString().padStart(2, '0');
