@@ -107,7 +107,10 @@
         }
 
         /* Modo Concentración */
-        body.app-active { padding: 0; }
+        body.app-active {
+            padding: 0;
+        }
+
         body.app-active .main-card {
             background: transparent;
             box-shadow: none;
@@ -115,9 +118,20 @@
             border-radius: 0;
             height: 100vh;
         }
-        body.app-active .card-content { justify-content: center; padding: 2rem; }
-        body.app-active .edit-section, body.app-active #notesDivider { display: none; }
-        body.app-active .time-display { font-size: 7rem; }
+
+        body.app-active .card-content {
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        body.app-active .edit-section, 
+        body.app-active #notesDivider {
+            display: none;
+        }
+
+        body.app-active .time-display {
+            font-size: 7rem;
+        }
 
         .header {
             display: flex;
@@ -189,11 +203,26 @@
             transition: all 0.2s ease;
         }
 
-        button:active { transform: scale(0.97); }
-        .btn-start { background: var(--accent-color); color: white; }
-        .btn-reset { background: #e5e5ea; color: var(--text-color); }
+        button:active {
+            transform: scale(0.97);
+        }
 
-        .divider { height: 1px; background: #e5e5ea; margin: 0.5rem 0; border-radius: 1px; }
+        .btn-start {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-reset {
+            background: #e5e5ea;
+            color: var(--text-color);
+        }
+
+        .divider {
+            height: 1px;
+            background: #e5e5ea;
+            margin: 0.5rem 0;
+            border-radius: 1px;
+        }
 
         .edit-section {
             display: flex;
@@ -215,7 +244,8 @@
             min-width: 0;
         }
 
-        .phase-row input[type="number"], .special-row input[type="number"] {
+        .phase-row input[type="number"], 
+        .special-row input[type="number"] {
             width: 70px;
             flex-shrink: 0;
             text-align: center;
@@ -242,7 +272,10 @@
             padding: 0.8rem;
         }
         
-        input:focus { outline: 2px solid var(--accent-color); border-color: transparent; }
+        input:focus {
+            outline: 2px solid var(--accent-color);
+            border-color: transparent;
+        }
 
         .special-row {
             display: flex;
@@ -282,8 +315,17 @@
             font-weight: 500;
         }
 
-        .routine-chip span:first-child { cursor: pointer; }
-        .delete-x { color: #ff3b30; font-weight: bold; font-size: 1.1rem; cursor: pointer; padding-left: 4px; }
+        .routine-chip span:first-child {
+            cursor: pointer;
+        }
+
+        .delete-x {
+            color: #ff3b30;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding-left: 4px;
+        }
 
         .notes-wrapper {
             width: 100%;
@@ -332,7 +374,11 @@
             transition: opacity 0.3s ease;
         }
 
-        h2 { font-size: 1.1rem; opacity: 0.9; font-weight: 600;}
+        h2 {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -374,6 +420,7 @@
                 </div>
 
                 <div id="phasesContainer" style="margin-top: 0.5rem;"></div>
+                
                 <button class="btn-add" onclick="addPhase()" style="width: 100%;">+ Add Phase</button>
 
                 <div class="special-row" style="margin-top: 0.5rem;">
@@ -387,6 +434,7 @@
                 </div>
 
                 <button class="btn-reset" style="background: #34c759; color: white; margin-top: 1rem; width: 100%;" onclick="saveRoutine()">Save this routine</button>
+                
                 <div id="routineList" class="saved-routines"></div>
             </div>
         </div>
@@ -405,12 +453,14 @@
 </div>
 
 <script>
+    // --- Lógica del Splash Screen ---
     window.addEventListener('load', () => {
         setTimeout(() => {
             document.getElementById('splashScreen').classList.add('splash-hidden');
         }, 1200); 
     });
 
+    // --- Variables de Estado ---
     let isRunning = false;
     let timerInterval;
     let timeLeft;
@@ -419,8 +469,15 @@
     let currentState = 'READY'; 
     let soundEnabled = true;
     let isNotesHidden = false;
-    let phases = [{ name: "Phase 1", time: 1 }, { name: "Phase 2", time: 2 }];
+    let phases = [
+        { name: "Phase 1", time: 1 }, 
+        { name: "Phase 2", time: 2 }
+    ];
+    
+    // --- Variables Wake Lock (Pantalla encendida) ---
+    let wakeLock = null;
 
+    // --- Elementos del DOM ---
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const timeDisplay = document.getElementById('timeDisplay');
     const phaseDisplay = document.getElementById('phaseDisplay');
@@ -428,12 +485,45 @@
     const notepad = document.getElementById('notepad');
     const roundCounterContainer = document.getElementById('roundCounterContainer');
 
-    if(localStorage.getItem('notes')) notepad.value = localStorage.getItem('notes');
-    notepad.addEventListener('input', () => localStorage.setItem('notes', notepad.value));
+    // Inicializar Notas Guardadas
+    if(localStorage.getItem('notes')) {
+        notepad.value = localStorage.getItem('notes');
+    }
+    
+    notepad.addEventListener('input', () => {
+        localStorage.setItem('notes', notepad.value);
+    });
 
+    // --- Funciones Wake Lock ---
+    async function requestWakeLock() {
+        try {
+            if ('wakeLock' in navigator) {
+                wakeLock = await navigator.wakeLock.request('screen');
+            }
+        } catch (err) {
+            console.log(`Wake Lock error: ${err.name}, ${err.message}`);
+        }
+    }
+
+    function releaseWakeLock() {
+        if (wakeLock !== null) {
+            wakeLock.release().then(() => { 
+                wakeLock = null; 
+            });
+        }
+    }
+
+    document.addEventListener('visibilitychange', async () => {
+        if (wakeLock !== null && document.visibilityState === 'visible' && isRunning) {
+            await requestWakeLock();
+        }
+    });
+
+    // --- Funciones de Interfaz ---
     function toggleNotesVisibility() {
         isNotesHidden = !isNotesHidden;
         const btn = document.getElementById('notesToggleBtn');
+        
         if (isNotesHidden) {
             document.body.classList.add('notes-hidden');
             btn.innerText = 'SHOW';
@@ -446,20 +536,33 @@
     function renderPhaseInputs() {
         const container = document.getElementById('phasesContainer');
         container.innerHTML = '';
+        
         phases.forEach((p, index) => {
             const row = document.createElement('div');
             row.className = 'phase-row';
+            
+            let deleteBtnHTML = '';
+            if (phases.length > 1) {
+                deleteBtnHTML = `<button class="btn-icon-del" onclick="removePhase(${index})">&times;</button>`;
+            } else {
+                deleteBtnHTML = `<div style="width: 30px;"></div>`;
+            }
+
             row.innerHTML = `
                 <input type="text" value="${p.name}" placeholder="Phase ${index+1}" oninput="phases[${index}].name = this.value; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) updateUI();">
                 <input type="number" value="${p.time}" min="1" oninput="phases[${index}].time = parseInt(this.value) || 0; if(!isRunning && currentState === 'CIRCUIT' && currentPhaseIndex === ${index}) renderTime();">
-                ${phases.length > 1 ? `<button class="btn-icon-del" onclick="removePhase(${index})">&times;</button>` : '<div style="width: 30px;"></div>'}
+                ${deleteBtnHTML}
             `;
+            
             container.appendChild(row);
         });
     }
 
     function addPhase() {
-        phases.push({ name: `Phase ${phases.length + 1}`, time: 1 });
+        phases.push({ 
+            name: `Phase ${phases.length + 1}`, 
+            time: 1 
+        });
         renderPhaseInputs();
         resetTimer();
     }
@@ -470,10 +573,12 @@
         resetTimer();
     }
     
+    // --- Gestión de Rutinas Guardadas ---
     function loadSavedRoutines() {
         const routines = JSON.parse(localStorage.getItem('myDynamicRoutines') || '[]');
         const container = document.getElementById('routineList');
         container.innerHTML = '';
+        
         routines.forEach((r, index) => {
             const chip = document.createElement('div');
             chip.className = 'routine-chip';
@@ -485,6 +590,7 @@
             const delX = document.createElement('span');
             delX.innerHTML = '&times;';
             delX.className = 'delete-x';
+            
             delX.onclick = (e) => {
                 e.stopPropagation();
                 if(confirm(`Delete "${r.name}"?`)) {
@@ -503,14 +609,17 @@
     function saveRoutine() {
         const name = prompt("Routine name:");
         if (!name) return;
+        
         const routines = JSON.parse(localStorage.getItem('myDynamicRoutines') || '[]');
+        
         routines.push({ 
-            name, 
+            name: name, 
             phasesData: JSON.parse(JSON.stringify(phases)), 
             sets: document.getElementById('sets').value,
             warmUp: document.getElementById('warmUpTime').value,
             coolDown: document.getElementById('coolDownTime').value
         });
+        
         localStorage.setItem('myDynamicRoutines', JSON.stringify(routines));
         loadSavedRoutines();
     }
@@ -529,32 +638,49 @@
         resetTimer();
     }
 
+    // --- Funciones de Audio ---
     function toggleSound() {
         soundEnabled = !soundEnabled;
-        document.getElementById('soundBtn').innerText = soundEnabled ? 'SOUND' : 'MUTE';
-        document.getElementById('soundBtn').style.opacity = soundEnabled ? '1' : '0.5';
+        const soundBtnElement = document.getElementById('soundBtn');
+        
+        soundBtnElement.innerText = soundEnabled ? 'SOUND' : 'MUTE';
+        soundBtnElement.style.opacity = soundEnabled ? '1' : '0.5';
     }
 
     function playBeep() {
         if (!soundEnabled) return;
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.value = 880; osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+        
+        osc.connect(gain); 
+        gain.connect(audioCtx.destination);
+        
+        osc.frequency.value = 880; 
+        osc.start(); 
+        osc.stop(audioCtx.currentTime + 0.3);
     }
 
+    // --- Lógica Principal del Temporizador ---
     function toggleTimer() {
         if (isRunning) {
+            // Acción de Pausar
             clearInterval(timerInterval);
             startBtn.innerText = 'Resume'; 
             startBtn.style.backgroundColor = '#34c759'; 
             isRunning = false;
+            releaseWakeLock();
         } else {
+            // Acción de Iniciar o Reanudar
             if (currentState === 'READY') {
                 document.body.classList.add('app-active');
                 
                 const wu = parseInt(document.getElementById('warmUpTime').value) || 0;
+                
                 if (wu > 0) {
                     currentState = 'WARMUP';
                     timeLeft = wu * 60;
@@ -566,12 +692,22 @@
                 }
                 updateUI();
             }
-            if (audioCtx.state === 'suspended') audioCtx.resume();
+            
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            requestWakeLock();
+            
             timerInterval = setInterval(() => {
                 timeLeft--;
-                if (timeLeft < 0) { playBeep(); switchPhase(); }
+                if (timeLeft < 0) { 
+                    playBeep(); 
+                    switchPhase(); 
+                }
                 renderTime();
             }, 1000);
+            
             startBtn.innerText = 'Pause'; 
             startBtn.style.backgroundColor = '#ff3b30'; 
             isRunning = true;
@@ -587,8 +723,10 @@
             currentSet = 1;
             currentPhaseIndex = 0;
             timeLeft = phases[0].time * 60;
-        } else if (currentState === 'CIRCUIT') {
+        } 
+        else if (currentState === 'CIRCUIT') {
             currentPhaseIndex++;
+            
             if (currentPhaseIndex >= phases.length) {
                 if (currentSet >= totalSets) {
                     if (cd > 0) {
@@ -606,10 +744,12 @@
             } else {
                 timeLeft = phases[currentPhaseIndex].time * 60;
             }
-        } else if (currentState === 'COOLDOWN') {
+        } 
+        else if (currentState === 'COOLDOWN') {
             finish();
             return;
         }
+        
         updateUI();
     }
 
@@ -623,17 +763,26 @@
             document.body.style.backgroundColor = "var(--bg-color)";
             roundCounterContainer.style.opacity = '1';
             phaseDisplay.style.color = "var(--accent-color)";
-        } else if (currentState === 'WARMUP') {
+        } 
+        else if (currentState === 'WARMUP') {
             phaseDisplay.innerText = "WARM UP";
             phaseDisplay.style.color = "#d97706"; 
             document.body.style.backgroundColor = "var(--warmup-bg)";
             roundCounterContainer.style.opacity = '0'; 
-        } else if (currentState === 'CIRCUIT') {
+        } 
+        else if (currentState === 'CIRCUIT') {
             phaseDisplay.innerText = phases[currentPhaseIndex] ? phases[currentPhaseIndex].name : "PHASE";
             phaseDisplay.style.color = "var(--accent-color)";
-            document.body.style.backgroundColor = currentPhaseIndex % 2 === 0 ? "var(--work-bg)" : "var(--rest-bg)";
+            
+            if (currentPhaseIndex % 2 === 0) {
+                document.body.style.backgroundColor = "var(--work-bg)";
+            } else {
+                document.body.style.backgroundColor = "var(--rest-bg)";
+            }
+            
             roundCounterContainer.style.opacity = '1';
-        } else if (currentState === 'COOLDOWN') {
+        } 
+        else if (currentState === 'COOLDOWN') {
             phaseDisplay.innerText = "COOL DOWN";
             phaseDisplay.style.color = "#0284c7"; 
             document.body.style.backgroundColor = "var(--cooldown-bg)";
@@ -647,7 +796,11 @@
             t = timeLeft;
         } else {
             const wu = parseInt(document.getElementById('warmUpTime').value) || 0;
-            t = wu > 0 ? wu * 60 : (phases[0] ? phases[0].time * 60 : 0);
+            if (wu > 0) {
+                t = wu * 60;
+            } else {
+                t = phases[0] ? phases[0].time * 60 : 0;
+            }
         }
         
         const m = Math.floor(t / 60).toString().padStart(2, '0');
@@ -664,6 +817,7 @@
         currentState = 'READY';
         
         document.body.classList.remove('app-active');
+        releaseWakeLock();
         
         renderTime(); 
         updateUI();
@@ -674,7 +828,8 @@
 
     function finish() {
         clearInterval(timerInterval); 
-        playBeep(); setTimeout(playBeep, 400);
+        playBeep(); 
+        setTimeout(playBeep, 400);
         
         currentState = 'READY';
         phaseDisplay.innerText = "DONE!"; 
@@ -683,6 +838,7 @@
         roundCounterContainer.style.opacity = '0';
         
         document.body.classList.remove('app-active');
+        releaseWakeLock();
         
         isRunning = false; 
         startBtn.innerText = 'Start'; 
@@ -690,7 +846,10 @@
         timeLeft = undefined;
     }
 
-    renderPhaseInputs(); loadSavedRoutines(); resetTimer();
+    // --- Inicialización al Cargar la Página ---
+    renderPhaseInputs(); 
+    loadSavedRoutines(); 
+    resetTimer();
 </script>
 </body>
 </html>
