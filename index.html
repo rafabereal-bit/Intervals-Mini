@@ -18,6 +18,24 @@
             --rest-bg: #e8f5e9;
             --warmup-bg: #fff8e1;
             --cooldown-bg: #e0f7fa;
+            --input-bg: #fbfbfd;
+            --border-color: #d2d2d7;
+            --btn-bg: rgba(0,0,0,0.06);
+        }
+
+        /* --- VARIABLES MODO OSCURO --- */
+        body.dark-mode {
+            --bg-color: #000000;
+            --text-color: #f5f5f7;
+            --accent-color: #0a84ff;
+            --card-bg: #1c1c1e;
+            --work-bg: #0c2b4a; /* Azul oscuro profundo */
+            --rest-bg: #0d3616; /* Verde oscuro profundo */
+            --warmup-bg: #3d2300; /* Naranja/café profundo */
+            --cooldown-bg: #002d3f; /* Cyan oscuro */
+            --input-bg: #2c2c2e;
+            --border-color: #38383a;
+            --btn-bg: rgba(255,255,255,0.15);
         }
 
         * {
@@ -31,7 +49,7 @@
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: background-color 0.4s ease, color 0.4s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -84,8 +102,8 @@
             opacity: 0;
             visibility: hidden;
         }
-        /* --------------------- */
 
+        /* --- MAIN CARD --- */
         .main-card {
             background: var(--card-bg);
             width: 100%;
@@ -94,8 +112,12 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
-            transition: all 0.5s ease;
+            transition: all 0.4s ease;
             overflow: hidden;
+        }
+
+        body.dark-mode .main-card {
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
         }
 
         .card-content {
@@ -106,7 +128,7 @@
             height: 100%;
         }
 
-        /* Modo Concentración */
+        /* --- MODO CONCENTRACIÓN --- */
         body.app-active {
             padding: 0;
         }
@@ -125,7 +147,8 @@
         }
 
         body.app-active .edit-section, 
-        body.app-active #notesDivider {
+        body.app-active #notesDivider,
+        body.app-active .donate-container {
             display: none;
         }
 
@@ -133,6 +156,7 @@
             font-size: 7rem;
         }
 
+        /* --- HEADER Y BOTONES SUPERIORES --- */
         .header {
             display: flex;
             justify-content: space-between;
@@ -140,19 +164,39 @@
             padding-bottom: 0.5rem;
         }
 
-        .sound-toggle {
-            background: rgba(0,0,0,0.06);
-            border: none;
-            padding: 0.5rem 0.8rem;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: var(--text-color);
-            cursor: pointer;
-            letter-spacing: 0.05em;
-            transition: opacity 0.2s;
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
+        .icon-btn, .sound-toggle {
+            background: var(--btn-bg);
+            border: none;
+            border-radius: 12px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: opacity 0.2s, background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn {
+            width: 34px;
+            height: 34px;
+            font-size: 1rem;
+        }
+
+        .sound-toggle {
+            padding: 0.5rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            height: 34px;
+        }
+
+        /* --- RELOJ Y TEXTOS --- */
         .timer-hero {
             text-align: center;
             display: flex;
@@ -187,6 +231,7 @@
             transition: opacity 0.3s ease;
         }
 
+        /* --- CONTROLES PRINCIPALES --- */
         .controls-main {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -213,17 +258,19 @@
         }
 
         .btn-reset {
-            background: #e5e5ea;
+            background: var(--btn-bg);
             color: var(--text-color);
         }
 
         .divider {
             height: 1px;
-            background: #e5e5ea;
+            background: var(--border-color);
             margin: 0.5rem 0;
             border-radius: 1px;
+            opacity: 0.6;
         }
 
+        /* --- SECCIÓN DE EDICIÓN --- */
         .edit-section {
             display: flex;
             flex-direction: column;
@@ -264,15 +311,17 @@
             justify-content: center;
         }
 
-        input {
-            border: 1px solid #d2d2d7;
+        input, textarea {
+            border: 1px solid var(--border-color);
             border-radius: 10px;
             font-size: 0.95rem;
-            background: #fbfbfd;
+            background: var(--input-bg);
             padding: 0.8rem;
+            color: var(--text-color);
+            transition: background 0.3s, border-color 0.3s, color 0.3s;
         }
         
-        input:focus {
+        input:focus, textarea:focus {
             outline: 2px solid var(--accent-color);
             border-color: transparent;
         }
@@ -288,7 +337,7 @@
 
         .btn-add {
             background: transparent;
-            border: 2px dashed #d2d2d7;
+            border: 2px dashed var(--border-color);
             color: var(--accent-color);
             padding: 0.8rem;
             border-radius: 12px;
@@ -296,6 +345,7 @@
             margin-top: 0.5rem;
         }
 
+        /* --- RUTINAS --- */
         .saved-routines {
             display: flex;
             flex-wrap: wrap;
@@ -304,15 +354,16 @@
         }
 
         .routine-chip {
-            background: #f5f5f7;
+            background: var(--input-bg);
             padding: 0.6rem 0.8rem;
             border-radius: 12px;
             font-size: 0.9rem;
-            border: 1px solid #d2d2d7;
+            border: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             gap: 8px;
             font-weight: 500;
+            color: var(--text-color);
         }
 
         .routine-chip span:first-child {
@@ -327,6 +378,7 @@
             padding-left: 4px;
         }
 
+        /* --- NOTAS Y DONACIONES --- */
         .notes-wrapper {
             width: 100%;
             display: flex;
@@ -343,7 +395,7 @@
 
         .btn-notes-toggle {
             display: none;
-            background: rgba(0,0,0,0.06);
+            background: var(--btn-bg);
             border: none;
             padding: 0.4rem 0.8rem;
             border-radius: 10px;
@@ -365,13 +417,7 @@
         .notes-area {
             width: 100%;
             height: 120px;
-            padding: 1rem;
-            border-radius: 16px;
-            border: 1px solid #d2d2d7;
-            background: #fbfbfd;
-            font-size: 0.95rem;
             resize: none;
-            transition: opacity 0.3s ease;
         }
 
         h2 {
@@ -379,6 +425,28 @@
             opacity: 0.9;
             font-weight: 600;
         }
+
+        .donate-container {
+            text-align: center;
+            margin-top: 1rem;
+            padding-bottom: 0.5rem;
+        }
+
+        .donate-link {
+            display: inline-block;
+            color: var(--text-color);
+            opacity: 0.5;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: opacity 0.2s;
+        }
+
+        .donate-link:hover {
+            opacity: 1;
+        }
+
     </style>
 </head>
 <body>
@@ -394,7 +462,10 @@
         
         <div class="header">
             <h1 style="font-weight: 700; font-size: 1.1rem; letter-spacing: 0.05em;">INTERVALS</h1>
-            <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">SOUND</button>
+            <div class="header-controls">
+                <button class="icon-btn" id="darkModeBtn" onclick="toggleDarkMode()">🌙</button>
+                <button class="sound-toggle" id="soundBtn" onclick="toggleSound()">SOUND</button>
+            </div>
         </div>
 
         <div class="timer-hero" id="heroCard">
@@ -449,12 +520,37 @@
             <textarea id="notepad" class="notes-area" placeholder="Jot down your workout details..."></textarea>
         </div>
 
+        <div class="donate-container">
+            <a href="https://ko-fi.com/rafacano" target="_blank" class="donate-link">☕ Support the app</a>
+        </div>
+
     </div>
 </div>
 
 <script>
+    // --- Lógica del Modo Oscuro ---
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+    function applyDarkMode() {
+        const btn = document.getElementById('darkModeBtn');
+        if (isDarkMode) {
+            document.body.classList.add('dark-mode');
+            btn.innerText = '☀️';
+        } else {
+            document.body.classList.remove('dark-mode');
+            btn.innerText = '🌙';
+        }
+    }
+
+    function toggleDarkMode() {
+        isDarkMode = !isDarkMode;
+        localStorage.setItem('darkMode', isDarkMode);
+        applyDarkMode();
+    }
+
     // --- Lógica del Splash Screen ---
     window.addEventListener('load', () => {
+        applyDarkMode(); // Aplicar tema al cargar
         setTimeout(() => {
             document.getElementById('splashScreen').classList.add('splash-hidden');
         }, 1200); 
@@ -474,7 +570,6 @@
         { name: "Phase 2", time: 2 }
     ];
     
-    // --- Variables Wake Lock (Pantalla encendida) ---
     let wakeLock = null;
 
     // --- Elementos del DOM ---
@@ -668,14 +763,12 @@
     // --- Lógica Principal del Temporizador ---
     function toggleTimer() {
         if (isRunning) {
-            // Acción de Pausar
             clearInterval(timerInterval);
             startBtn.innerText = 'Resume'; 
             startBtn.style.backgroundColor = '#34c759'; 
             isRunning = false;
             releaseWakeLock();
         } else {
-            // Acción de Iniciar o Reanudar
             if (currentState === 'READY') {
                 document.body.classList.add('app-active');
                 
@@ -758,6 +851,7 @@
         document.getElementById('currentSet').innerText = currentSet;
         document.getElementById('totalSetsDisp').innerText = totalSets;
         
+        // El color del fondo cambia dependiendo de si estamos en modo oscuro o claro
         if (currentState === 'READY') {
             phaseDisplay.innerText = "READY";
             document.body.style.backgroundColor = "var(--bg-color)";
